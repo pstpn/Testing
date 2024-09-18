@@ -13,4 +13,5 @@ test:
 allure:
 	allure serve internal/service/allure-results -p 4000
 
+
 .PHONY: go-tests-template mockery-template go-test-command test allure
