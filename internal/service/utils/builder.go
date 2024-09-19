@@ -47,3 +47,18 @@ func (c CheckpointBuilder) ToListDTO() *dto.ListPassagesRequest {
 		DocumentID: c.documentID,
 	}
 }
+
+type CompanyBuilder struct {
+	companyID int64
+}
+
+func (c CompanyBuilder) WithCompanyID(companyID int64) CompanyBuilder {
+	c.companyID = companyID
+	return c
+}
+
+func (c CompanyBuilder) ToGetDTO() *dto.GetCompanyRequest {
+	return &dto.GetCompanyRequest{
+		CompanyID: c.companyID,
+	}
+}

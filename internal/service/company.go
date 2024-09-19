@@ -11,7 +11,6 @@ import (
 )
 
 type CompanyService interface {
-	Create(ctx context.Context, request *dto.CreateCompanyRequest) (*model.Company, error)
 	GetCompany(ctx context.Context, request *dto.GetCompanyRequest) (*model.Company, error)
 }
 
@@ -25,18 +24,6 @@ func NewCompanyService(logger logger.Interface, companyStorage storage.CompanySt
 		logger:         logger,
 		companyStorage: companyStorage,
 	}
-}
-
-func (c *companyServiceImpl) Create(ctx context.Context, request *dto.CreateCompanyRequest) (*model.Company, error) {
-	c.logger.Infof("create company with name %s in city %s", request.Name, request.City)
-
-	company, err := c.companyStorage.Create(ctx, request)
-	if err != nil {
-		c.logger.Errorf("create company: %s", err.Error())
-		return nil, fmt.Errorf("create company: %w", err)
-	}
-
-	return company, nil
 }
 
 func (c *companyServiceImpl) GetCompany(ctx context.Context, request *dto.GetCompanyRequest) (*model.Company, error) {

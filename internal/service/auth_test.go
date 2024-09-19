@@ -23,7 +23,7 @@ func (s *AuthSuite) Test_Auth_RegisterEmployee1(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Incorrect company ID", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		request := utils.ObjectMother{CompanyID: s.companyID}.IncorrectCompanyIDRegisterEmployeeRequest()
+		request := utils.AuthObjectMother{CompanyID: s.companyID}.IncorrectCompanyIDRegisterEmployeeRequest()
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
 		tokens, err := s.authService.RegisterEmployee(ctx, request)
@@ -39,7 +39,7 @@ func (s *AuthSuite) Test_Auth_RegisterEmployee2(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Success", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		request := utils.ObjectMother{CompanyID: s.companyID}.DefaultRegisterEmployeeRequest()
+		request := utils.AuthObjectMother{CompanyID: s.companyID}.DefaultRegisterEmployeeRequest()
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
 		tokens, err := s.authService.RegisterEmployee(ctx, request)
@@ -58,7 +58,7 @@ func (s *AuthSuite) Test_Auth_LoginEmployee1(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Incorrect phone number", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		request := utils.ObjectMother{CompanyID: s.companyID}.IncorrectPhoneNumberLoginEmployeeRequest()
+		request := utils.AuthObjectMother{CompanyID: s.companyID}.IncorrectPhoneNumberLoginEmployeeRequest()
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
 		tokens, err := s.authService.LoginEmployee(ctx, request)
@@ -74,7 +74,7 @@ func (s *AuthSuite) Test_Auth_LoginEmployee2(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Incorrect password", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		request := utils.ObjectMother{CompanyID: s.companyID}.IncorrectPasswordLoginEmployeeRequest()
+		request := utils.AuthObjectMother{CompanyID: s.companyID}.IncorrectPasswordLoginEmployeeRequest()
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
 		tokens, err := s.authService.LoginEmployee(ctx, request)
@@ -90,7 +90,7 @@ func (s *AuthSuite) Test_Auth_LoginEmployee3(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Success", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		request := utils.ObjectMother{CompanyID: s.companyID}.DefaultLoginEmployeeRequest()
+		request := utils.AuthObjectMother{CompanyID: s.companyID}.DefaultLoginEmployeeRequest()
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
 		tokens, err := s.authService.LoginEmployee(ctx, request)

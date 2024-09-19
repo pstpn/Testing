@@ -25,7 +25,7 @@ func TestRunner(t *testing.T) {
 	t.Parallel()
 
 	wg := &sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(4)
 	go func() {
 		suite.RunSuite(t, &AuthSuite{
 			authService: service.NewAuthService(
@@ -42,6 +42,20 @@ func TestRunner(t *testing.T) {
 	}()
 	go func() {
 		suite.RunSuite(t, &CheckpointSuite{})
+		wg.Done()
+	}()
+	go func() {
+		suite.RunSuite(t, &CompanySuite{
+			companyService: service.NewCompanyService(
+				utils.NewMockLogger(),
+				postgres.NewCompanyStorage(db),
+			),
+			companyID: ids["companyID"],
+		})
+		wg.Done()
+	}()
+	go func() {
+		suite.RunSuite(t, &DocumentSuite{})
 		wg.Done()
 	}()
 	wg.Wait()
