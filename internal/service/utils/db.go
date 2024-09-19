@@ -29,6 +29,7 @@ func NewTestStorage() (*postgres.Postgres, map[string]int64) {
 	ids["infoCardID"] = initTestInfoCardStorage(postgres2.NewInfoCardStorage(conn))
 	ids["documentID"] = initTestDocumentStorage(postgres2.NewDocumentStorage(conn))
 	ids["checkpointID"] = initTestCheckpointStorage(postgres2.NewCheckpointStorage(conn))
+	ids["passageID"] = initTestPassageStorage(postgres2.NewCheckpointStorage(conn))
 	ids["photoID"] = initTestPhotoMetaStorage(postgres2.NewPhotoMetaStorage(conn))
 
 	return conn, ids
@@ -58,6 +59,10 @@ func DropTestStorage(testDB *postgres.Postgres) {
 		panic(err)
 	}
 	err = postgres2.NewCompanyStorage(testDB).Delete(context.TODO(), &dto.DeleteCompanyRequest{CompanyID: ids["companyID"]})
+	if err != nil {
+		panic(err)
+	}
+	err = postgres2.NewCheckpointStorage(testDB).DeletePassage(context.TODO(), &dto.DeletePassageRequest{PassageID: ids["passageID"]})
 	if err != nil {
 		panic(err)
 	}
@@ -134,6 +139,22 @@ func initTestCheckpointStorage(storage storage.CheckpointStorage) int64 {
 	}
 
 	return checkpoint.ID.Int()
+}
+
+func initTestPassageStorage(storage storage.CheckpointStorage) int64 {
+	tm, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
+
+	passage, err := storage.CreatePassage(context.TODO(), &dto.CreatePassageRequest{
+		CheckpointID: ids["checkpointID"],
+		DocumentID:   ids["documentID"],
+		Type:         1,
+		Time:         &tm,
+	})
+	if err != nil && !strings.Contains(err.Error(), "constraint") {
+		panic(err)
+	}
+
+	return passage.ID.Int()
 }
 
 func initTestPhotoMetaStorage(storage storage.PhotoMetaStorage) int64 {

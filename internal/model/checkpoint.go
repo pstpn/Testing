@@ -67,6 +67,10 @@ func (p *PassageType) String() string {
 	}
 }
 
+func (p *PassageType) Int() int64 {
+	return int64(*p)
+}
+
 type Passage struct {
 	ID           *PassageID
 	CheckpointID *CheckpointID

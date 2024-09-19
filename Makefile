@@ -8,7 +8,7 @@ go-test-command:
 	go test -v ./...
 
 test:
-	go test ./internal/service/auth_test.go --race
+	go test ./internal/service --race
 
 allure:
 	allure serve internal/service/allure-results -p 4000
