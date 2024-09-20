@@ -138,10 +138,6 @@ func (c *CheckpointSuite) Test_Checkpoint_ListPassages2(t provider.T) {
 		sCtx.Assert().NoError(err)
 		sCtx.Assert().NotNil(passages)
 		sCtx.Assert().Len(passages, len(expPassages))
-		sCtx.Assert().Equal(expPassages[0].ID, passages[0].ID)
-		sCtx.Assert().Equal(expPassages[0].CheckpointID, passages[0].CheckpointID)
-		sCtx.Assert().Equal(expPassages[0].DocumentID, passages[0].DocumentID)
-		sCtx.Assert().Equal(expPassages[0].Type, passages[0].Type)
-		sCtx.Assert().Equal(expPassages[0].Time, passages[0].Time)
+		sCtx.Assert().Equal(expPassages[0], passages[0])
 	})
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ozontech/allure-go/pkg/framework/runner"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 
 	"course/internal/service"
@@ -25,9 +26,8 @@ func TestRunner(t *testing.T) {
 	t.Parallel()
 
 	wg := &sync.WaitGroup{}
-	wg.Add(4)
-	go func() {
-		suite.RunSuite(t, &AuthSuite{
+	suits := []runner.TestSuite{
+		&AuthSuite{
 			authService: service.NewAuthService(
 				utils.NewMockLogger(),
 				postgres.NewEmployeeStorage(db),
@@ -37,26 +37,27 @@ func TestRunner(t *testing.T) {
 				time.Hour,
 			),
 			companyID: ids["companyID"],
-		})
-		wg.Done()
-	}()
-	go func() {
-		suite.RunSuite(t, &CheckpointSuite{})
-		wg.Done()
-	}()
-	go func() {
-		suite.RunSuite(t, &CompanySuite{
+		},
+		&CheckpointSuite{},
+		&CompanySuite{
 			companyService: service.NewCompanyService(
 				utils.NewMockLogger(),
 				postgres.NewCompanyStorage(db),
 			),
 			companyID: ids["companyID"],
-		})
-		wg.Done()
-	}()
-	go func() {
-		suite.RunSuite(t, &DocumentSuite{})
-		wg.Done()
-	}()
+		},
+		&DocumentSuite{},
+		&EmployeeSuite{},
+		&FieldSuite{},
+	}
+	wg.Add(len(suits))
+
+	for _, s := range suits {
+		go func() {
+			suite.RunSuite(t, s)
+			wg.Done()
+		}()
+	}
+
 	wg.Wait()
 }

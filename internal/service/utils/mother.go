@@ -117,3 +117,90 @@ func (d DocumentObjectMother) DefaultDeleteDocumentRequest() *dto.DeleteDocument
 		DocumentID: d.DocumentID,
 	}
 }
+
+type EmployeeObjectMother struct {
+	EmployeeID int64
+}
+
+func (e EmployeeObjectMother) IncorrectPhoneNumberGetEmployeeRequest() *dto.GetEmployeeRequest {
+	return &dto.GetEmployeeRequest{
+		PhoneNumber: "86^*(8723d",
+	}
+}
+
+func (e EmployeeObjectMother) DefaultGetEmployeeRequest() *dto.GetEmployeeRequest {
+	return &dto.GetEmployeeRequest{
+		PhoneNumber: "123",
+	}
+}
+
+func (e EmployeeObjectMother) IncorrectEmployeeIDDeleteEmployeeRequest() *dto.DeleteEmployeeRequest {
+	return &dto.DeleteEmployeeRequest{
+		EmployeeID: -123,
+	}
+}
+
+func (e EmployeeObjectMother) DefaultDeleteEmployeeRequest() *dto.DeleteEmployeeRequest {
+	return &dto.DeleteEmployeeRequest{
+		EmployeeID: e.EmployeeID,
+	}
+}
+
+type FieldObjectMother struct {
+	DocumentID int64
+	FieldID    int64
+}
+
+func (f FieldObjectMother) IncorrectDocumentIDCreateDocumentFieldRequest() *dto.CreateDocumentFieldRequest {
+	return &dto.CreateDocumentFieldRequest{
+		DocumentID: -111,
+		Type:       1,
+		Value:      "123",
+	}
+}
+
+func (f FieldObjectMother) DefaultCreateDocumentFieldRequest() *dto.CreateDocumentFieldRequest {
+	return &dto.CreateDocumentFieldRequest{
+		DocumentID: f.DocumentID,
+		Type:       1,
+		Value:      "123",
+	}
+}
+
+func (f FieldObjectMother) IncorrectDocumentIDGetDocumentFieldRequest() *dto.GetDocumentFieldRequest {
+	return &dto.GetDocumentFieldRequest{
+		DocumentID: -1,
+		FieldType:  1,
+	}
+}
+
+func (f FieldObjectMother) DefaultGetDocumentFieldRequest() *dto.GetDocumentFieldRequest {
+	return &dto.GetDocumentFieldRequest{
+		DocumentID: f.DocumentID,
+		FieldType:  1,
+	}
+}
+
+func (f FieldObjectMother) IncorrectDocumentIDListDocumentFieldsRequest() *dto.ListDocumentFieldsRequest {
+	return &dto.ListDocumentFieldsRequest{
+		DocumentID: -1,
+	}
+}
+
+func (f FieldObjectMother) DefaultListDocumentFieldsRequest() *dto.ListDocumentFieldsRequest {
+	return &dto.ListDocumentFieldsRequest{
+		DocumentID: f.DocumentID,
+	}
+}
+
+func (f FieldObjectMother) IncorrectFieldIDDeleteDocumentFieldRequest() *dto.DeleteDocumentFieldRequest {
+	return &dto.DeleteDocumentFieldRequest{
+		FieldID: -1,
+	}
+}
+
+func (f FieldObjectMother) DefaultDeleteDocumentFieldRequest() *dto.DeleteDocumentFieldRequest {
+	return &dto.DeleteDocumentFieldRequest{
+		FieldID: f.FieldID,
+	}
+}
