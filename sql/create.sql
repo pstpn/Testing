@@ -34,13 +34,6 @@ create table if not exists document
     type text
 );
 
-create table if not exists photo
-(
-    id serial primary key,
-    document_id int references document(id) on delete cascade,
-    key text
-);
-
 create table if not exists field
 (
     id serial primary key,

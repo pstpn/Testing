@@ -17,6 +17,8 @@ const (
 	DateOfRelease FieldType = iota
 	IssuingAuthority
 	PlaceOfIssue
+	Test
+	Test1
 	UnknownFieldType
 )
 
@@ -34,6 +36,10 @@ func ToFieldTypeFromString(field string) *FieldType {
 		fieldType = IssuingAuthority
 	case "Место выдачи":
 		fieldType = PlaceOfIssue
+	case "Test":
+		fieldType = Test
+	case "Test1":
+		fieldType = Test1
 	default:
 		fieldType = UnknownFieldType
 	}
@@ -49,6 +55,10 @@ func (f *FieldType) String() string {
 		return "Выдавший орган"
 	case PlaceOfIssue:
 		return "Место выдачи"
+	case Test:
+		return "Test"
+	case Test1:
+		return "Test1"
 	default:
 		return "Неизвестное поле"
 	}

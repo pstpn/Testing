@@ -233,10 +233,34 @@ func (f FieldObjectMother) IncorrectDocumentIDCreateDocumentFieldRequest() *dto.
 	}
 }
 
-func (f FieldObjectMother) DefaultCreateDocumentFieldRequest() *dto.CreateDocumentFieldRequest {
+func (f FieldObjectMother) DefaultCreateDocumentFieldRequest3() *dto.CreateDocumentFieldRequest {
 	return &dto.CreateDocumentFieldRequest{
 		DocumentID: f.DocumentID,
-		Type:       1,
+		Type:       2,
+		Value:      "123",
+	}
+}
+
+func (f FieldObjectMother) DefaultCreateDocumentFieldRequest4() *dto.CreateDocumentFieldRequest {
+	return &dto.CreateDocumentFieldRequest{
+		DocumentID: f.DocumentID,
+		Type:       3,
+		Value:      "123",
+	}
+}
+
+func (f FieldObjectMother) DefaultCreateDocumentFieldRequest5() *dto.CreateDocumentFieldRequest {
+	return &dto.CreateDocumentFieldRequest{
+		DocumentID: f.DocumentID,
+		Type:       4,
+		Value:      "123",
+	}
+}
+
+func (f FieldObjectMother) DefaultCreateDocumentFieldRequest6() *dto.CreateDocumentFieldRequest {
+	return &dto.CreateDocumentFieldRequest{
+		DocumentID: f.DocumentID,
+		Type:       5,
 		Value:      "123",
 	}
 }
@@ -248,10 +272,24 @@ func (f FieldObjectMother) IncorrectDocumentIDGetDocumentFieldRequest() *dto.Get
 	}
 }
 
-func (f FieldObjectMother) DefaultGetDocumentFieldRequest() *dto.GetDocumentFieldRequest {
+func (f FieldObjectMother) DefaultGetDocumentFieldRequest3() *dto.GetDocumentFieldRequest {
 	return &dto.GetDocumentFieldRequest{
 		DocumentID: f.DocumentID,
-		FieldType:  1,
+		FieldType:  2,
+	}
+}
+
+func (f FieldObjectMother) DefaultGetDocumentFieldRequest4() *dto.GetDocumentFieldRequest {
+	return &dto.GetDocumentFieldRequest{
+		DocumentID: f.DocumentID,
+		FieldType:  3,
+	}
+}
+
+func (f FieldObjectMother) DefaultGetDocumentFieldRequest6() *dto.GetDocumentFieldRequest {
+	return &dto.GetDocumentFieldRequest{
+		DocumentID: f.DocumentID,
+		FieldType:  5,
 	}
 }
 

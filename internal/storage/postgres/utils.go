@@ -12,7 +12,6 @@ const (
 	employeeTable   = "employee"
 	fieldTable      = "field"
 	infoCardTable   = "info_card"
-	photoTable      = "photo"
 	passageTable    = "passage"
 )
 
@@ -118,13 +117,5 @@ func returningCheckpointColumns() string {
 	return fmt.Sprintf("RETURNING %s", strings.Join([]string{
 		idField,
 		phoneNumberField,
-	}, ","))
-}
-
-func returningPhotoMetaColumns() string {
-	return fmt.Sprintf("RETURNING %s", strings.Join([]string{
-		idField,
-		documentIdField,
-		keyField,
 	}, ","))
 }

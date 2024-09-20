@@ -38,6 +38,14 @@ func TestRunner(t *testing.T) {
 			companyID:       ids["companyID"],
 			infoCardID:      ids["infoCardID"],
 		},
+		&FieldStorageSuite{
+			fieldStorage: postgres.NewFieldStorage(db),
+			documentID:   ids["documentID"],
+		},
+		&InfoCardStorageSuite{
+			infoCardStorage: postgres.NewInfoCardStorage(db),
+			employeeID:      ids["employeeID"],
+		},
 	}
 	wg.Add(len(suits))
 

@@ -46,7 +46,7 @@ func (s *FieldSuite) Test_Field_CreateDocumentField2(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Success", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		request := utils.FieldObjectMother{DocumentID: 123}.DefaultCreateDocumentFieldRequest()
+		request := utils.FieldObjectMother{DocumentID: 123}.DefaultCreateDocumentFieldRequest1()
 		expField := &model.Field{
 			ID:         model.ToFieldID(191),
 			DocumentID: model.ToDocumentID(123),
@@ -99,7 +99,7 @@ func (s *FieldSuite) Test_Field_GetDocumentField2(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Success", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		request := utils.FieldObjectMother{DocumentID: 123}.DefaultGetDocumentFieldRequest()
+		request := utils.FieldObjectMother{DocumentID: 123}.DefaultGetDocumentFieldRequest2()
 		expField := &model.Field{
 			ID:         model.ToFieldID(191),
 			DocumentID: model.ToDocumentID(123),

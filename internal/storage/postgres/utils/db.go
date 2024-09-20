@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"course/internal/model"
 	"course/internal/service/dto"
 	"course/internal/storage"
 	postgres2 "course/internal/storage/postgres"
@@ -29,7 +28,6 @@ func NewTestStorage() (*postgres.Postgres, map[string]int64) {
 	ids["infoCardID"] = initTestInfoCardStorage(postgres2.NewInfoCardStorage(conn))
 	ids["documentID"] = initTestDocumentStorage(postgres2.NewDocumentStorage(conn))
 	ids["checkpointID"] = initTestCheckpointStorage(postgres2.NewCheckpointStorage(conn))
-	ids["photoID"] = initTestPhotoMetaStorage(postgres2.NewPhotoMetaStorage(conn))
 
 	return conn, ids
 }
@@ -37,11 +35,7 @@ func NewTestStorage() (*postgres.Postgres, map[string]int64) {
 func DropTestStorage(testDB *postgres.Postgres) {
 	defer testDB.Close()
 
-	err := postgres2.NewPhotoMetaStorage(testDB).DeleteKey(context.TODO(), &dto.DeletePhotoRequest{DocumentID: ids["photoID"]})
-	if err != nil {
-		panic(err)
-	}
-	err = postgres2.NewCheckpointStorage(testDB).DeleteCheckpoint(context.TODO(), &dto.DeleteCheckpointRequest{CheckpointID: ids["checkpointID"]})
+	err := postgres2.NewCheckpointStorage(testDB).DeleteCheckpoint(context.TODO(), &dto.DeleteCheckpointRequest{CheckpointID: ids["checkpointID"]})
 	if err != nil {
 		panic(err)
 	}
@@ -134,16 +128,4 @@ func initTestCheckpointStorage(storage storage.CheckpointStorage) int64 {
 	}
 
 	return checkpoint.ID.Int()
-}
-
-func initTestPhotoMetaStorage(storage storage.PhotoMetaStorage) int64 {
-	photoMeta, err := storage.SaveKey(context.TODO(), &dto.CreatePhotoKeyRequest{
-		DocumentID: model.ToDocumentID(ids["documentID"]),
-		Key:        model.ToPhotoKey("123321"),
-	})
-	if err != nil && !strings.Contains(err.Error(), "constraint") {
-		panic(err)
-	}
-
-	return photoMeta.ID.Int()
 }
