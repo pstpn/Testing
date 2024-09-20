@@ -28,7 +28,8 @@ func (c *CheckpointSuite) Test_Checkpoint_CreatePassage1(t provider.T) {
 			WithCheckpointID(-1).
 			WithDocumentID(1).
 			WithPassageType(1).
-			WithTime(time.Now().UTC()).ToCreateDTO()
+			WithTime(time.Now().UTC()).
+			ToCreateDTO()
 
 		checkpointMockStorage := mocks.NewCheckpointStorage(t)
 		checkpointMockStorage.

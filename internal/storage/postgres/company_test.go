@@ -1,72 +1,121 @@
-package postgres
+package postgres_test
 
 import (
 	"context"
-	"testing"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/stretchr/testify/require"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 
 	"course/internal/service/dto"
+	"course/internal/storage"
+	"course/internal/storage/utils"
 )
 
-func Test_companyStorageImpl_Create(t *testing.T) {
-	companyStorage := NewCompanyStorage(testDB)
+type CompanyStorageSuite struct {
+	suite.Suite
 
-	request := &dto.CreateCompanyRequest{
-		Name: "test",
-		City: "tetest",
-	}
-
-	company, err := companyStorage.Create(context.TODO(), request)
-	require.NoError(t, err)
-	require.NotEmpty(t, company)
-	require.Equal(t, request.Name, company.Name)
-	require.Equal(t, request.City, company.City)
-
-	err = companyStorage.Delete(context.TODO(), &dto.DeleteCompanyRequest{CompanyID: company.ID.Int()})
-	require.NoError(t, err)
+	companyStorage storage.CompanyStorage
 }
 
-func Test_companyStorageImpl_GetByID(t *testing.T) {
-	companyStorage := NewCompanyStorage(testDB)
+func (c *CompanyStorageSuite) Test_CompanyStorage_Create(t provider.T) {
+	t.Title("[Create] Create company test")
+	t.Tags("storage", "postgres", "company")
+	t.Parallel()
+	t.WithNewStep("Create company test", func(sCtx provider.StepCtx) {
+		ctx := context.TODO()
+		request := utils.CompanyBuilder{}.
+			WithName("teStik").
+			WithCity("Testovik").
+			ToCreateDTO()
 
-	company1, err := companyStorage.Create(context.TODO(), &dto.CreateCompanyRequest{
-		Name: "test",
-		City: "tetest",
+		sCtx.WithNewParameters("ctx", ctx, "request", request)
+
+		company, err := c.companyStorage.Create(ctx, request)
+
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(company)
+		sCtx.Assert().NotNil(company.ID)
+		sCtx.Assert().Equal(request.Name, company.Name)
+		sCtx.Assert().Equal(request.City, company.City)
+
+		err = c.companyStorage.Delete(context.TODO(), &dto.DeleteCompanyRequest{CompanyID: company.ID.Int()})
+		sCtx.Assert().NoError(err)
 	})
-	require.NoError(t, err)
-	require.NotEmpty(t, company1)
-
-	company2, err := companyStorage.GetByID(context.TODO(), &dto.GetCompanyRequest{CompanyID: company1.ID.Int()})
-	require.NoError(t, err)
-	require.NotEmpty(t, company2)
-	require.Equal(t, company1.ID, company2.ID)
-	require.Equal(t, company1.Name, company2.Name)
-	require.Equal(t, company1.City, company2.City)
-
-	err = companyStorage.Delete(context.TODO(), &dto.DeleteCompanyRequest{CompanyID: company1.ID.Int()})
-	require.NoError(t, err)
 }
 
-func Test_companyStorageImpl_Delete(t *testing.T) {
-	companyStorage := NewCompanyStorage(testDB)
+func (c *CompanyStorageSuite) Test_CompanyStorage_GetByID(t provider.T) {
+	t.Title("[GetByID] Get company by ID test")
+	t.Tags("storage", "postgres", "company")
+	t.Parallel()
+	t.WithNewStep("Get company by ID test", func(sCtx provider.StepCtx) {
+		ctx := context.TODO()
+		expCompany, err := c.companyStorage.Create(
+			ctx,
+			utils.CompanyBuilder{}.
+				WithName("teStik").
+				WithCity("Testovik").
+				ToCreateDTO(),
+		)
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(expCompany)
+		request := utils.CompanyBuilder{}.
+			WithCompanyID(expCompany.ID.Int()).
+			ToGetDTO()
 
-	company1, err := companyStorage.Create(context.TODO(), &dto.CreateCompanyRequest{
-		Name: "test",
-		City: "tetest",
+		sCtx.WithNewParameters("ctx", ctx, "request", request)
+
+		company, err := c.companyStorage.GetByID(ctx, request)
+
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(company)
+		sCtx.Assert().Equal(expCompany.ID, company.ID)
+		sCtx.Assert().Equal(expCompany.Name, company.Name)
+		sCtx.Assert().Equal(expCompany.City, company.City)
+
+		err = c.companyStorage.Delete(context.TODO(), &dto.DeleteCompanyRequest{CompanyID: company.ID.Int()})
+		sCtx.Assert().NoError(err)
 	})
-	require.NoError(t, err)
-	require.NotEmpty(t, company1)
+}
 
-	err = companyStorage.Delete(context.TODO(), &dto.DeleteCompanyRequest{CompanyID: company1.ID.Int()})
-	require.NoError(t, err)
+func (c *CompanyStorageSuite) Test_CompanyStorage_Delete(t provider.T) {
+	t.Title("[Delete] Delete company test")
+	t.Tags("storage", "postgres", "company")
+	t.Parallel()
+	t.WithNewStep("Delete company test", func(sCtx provider.StepCtx) {
+		ctx := context.TODO()
+		expCompany, err := c.companyStorage.Create(
+			ctx,
+			utils.CompanyBuilder{}.
+				WithName("teStik").
+				WithCity("Testovik").
+				ToCreateDTO(),
+		)
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(expCompany)
+		request := utils.CompanyBuilder{}.
+			WithCompanyID(expCompany.ID.Int()).
+			ToDeleteDTO()
 
-	company2, err := companyStorage.GetByID(context.TODO(), &dto.GetCompanyRequest{CompanyID: company1.ID.Int()})
-	require.Error(t, err)
-	require.EqualError(t, err, pgx.ErrNoRows.Error())
-	require.Empty(t, company2)
+		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-	err = companyStorage.Delete(context.TODO(), &dto.DeleteCompanyRequest{CompanyID: company1.ID.Int()})
-	require.NoError(t, err)
+		err = c.companyStorage.Delete(ctx, request)
+
+		sCtx.Assert().NoError(err)
+
+		company, err := c.companyStorage.GetByID(
+			ctx,
+			utils.CompanyBuilder{}.
+				WithCompanyID(expCompany.ID.Int()).
+				ToGetDTO(),
+		)
+
+		sCtx.Assert().Error(err)
+		sCtx.Assert().EqualError(err, pgx.ErrNoRows.Error())
+		sCtx.Assert().Nil(company)
+
+		err = c.companyStorage.Delete(ctx, request)
+
+		sCtx.Assert().NoError(err)
+	})
 }

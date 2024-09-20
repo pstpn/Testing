@@ -8,9 +8,15 @@ go-test-command:
 	go test -v ./...
 
 test:
-	go test ./internal/service --race
+	rm -rf allure-results
+	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/Testing" && go test ./... --race --parallel 11
 
 allure:
-	allure serve internal/service/allure-results -p 4000
+	cp -R allure-reports/history allure-results
+	rm -rf allure-reports
+	allure generate allure-results -o allure-reports
+	allure serve allure-results -p 4000
 
-.PHONY: go-tests-template mockery-template go-test-command test allure
+report: test allure
+
+.PHONY: go-tests-template mockery-template go-test-command test allure report

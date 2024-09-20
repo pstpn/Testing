@@ -1,188 +1,273 @@
-package postgres
+package postgres_test
 
 import (
 	"context"
-	"testing"
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/stretchr/testify/require"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 
 	"course/internal/model"
 	"course/internal/service/dto"
+	"course/internal/storage"
+	"course/internal/storage/utils"
 )
 
-func Test_checkpointStorageImpl_CreateCheckpoint(t *testing.T) {
-	checkpointStorage := NewCheckpointStorage(testDB)
+type CheckpointStorageSuite struct {
+	suite.Suite
 
-	request := &dto.CreateCheckpointRequest{
-		PhoneNumber: "123432",
-	}
-
-	checkpoint, err := checkpointStorage.CreateCheckpoint(context.TODO(), request)
-	require.NoError(t, err)
-	require.NotEmpty(t, checkpoint)
-	require.Equal(t, request.PhoneNumber, checkpoint.PhoneNumber)
-
-	err = checkpointStorage.DeleteCheckpoint(context.TODO(), &dto.DeleteCheckpointRequest{CheckpointID: checkpoint.ID.Int()})
-	require.NoError(t, err)
+	checkpointStorage storage.CheckpointStorage
+	checkpointID      int64
+	documentID        int64
 }
 
-func Test_checkpointStorageImpl_CreatePassage(t *testing.T) {
-	checkpointStorage := NewCheckpointStorage(testDB)
+func (c *CheckpointStorageSuite) Test_CheckpointStorage_CreateCheckpoint(t provider.T) {
+	t.Title("[CreateCheckpoint] Create checkpoint test")
+	t.Tags("storage", "postgres", "checkpoint")
+	t.Parallel()
+	t.WithNewStep("Create checkpoint test", func(sCtx provider.StepCtx) {
+		ctx := context.TODO()
+		request := utils.CheckpointBuilder{}.
+			WithPhoneNumber("123").
+			ToCreateCheckpointDTO()
 
-	tm, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
+		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-	request := &dto.CreatePassageRequest{
-		CheckpointID: ids["checkpointID"],
-		DocumentID:   ids["documentID"],
-		Type:         0,
-		Time:         &tm,
-	}
+		checkpoint, err := c.checkpointStorage.CreateCheckpoint(ctx, request)
 
-	passage, err := checkpointStorage.CreatePassage(context.TODO(), request)
-	require.NoError(t, err)
-	require.NotEmpty(t, passage)
-	require.Equal(t, model.ToCheckpointID(request.CheckpointID), passage.CheckpointID)
-	require.Equal(t, model.ToDocumentID(request.DocumentID), passage.DocumentID)
-	require.Equal(t, model.ToPassageTypeFromInt(request.Type), passage.Type)
-	require.Equal(t, request.Time, passage.Time)
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(checkpoint)
+		sCtx.Assert().NotNil(checkpoint.ID)
+		sCtx.Assert().Equal(request.PhoneNumber, checkpoint.PhoneNumber)
 
-	err = checkpointStorage.DeletePassage(context.TODO(), &dto.DeletePassageRequest{PassageID: passage.ID.Int()})
-	require.NoError(t, err)
+		err = c.checkpointStorage.DeleteCheckpoint(context.TODO(), &dto.DeleteCheckpointRequest{CheckpointID: checkpoint.ID.Int()})
+		sCtx.Assert().NoError(err)
+	})
 }
 
-func Test_checkpointStorageImpl_GetPassage(t *testing.T) {
-	checkpointStorage := NewCheckpointStorage(testDB)
+func (c *CheckpointStorageSuite) Test_CheckpointStorage_CreatePassage(t provider.T) {
+	t.Title("[CreatePassage] Create passage test")
+	t.Tags("storage", "postgres", "checkpoint", "passage")
+	t.Parallel()
+	t.WithNewStep("Create passage test", func(sCtx provider.StepCtx) {
+		ctx := context.TODO()
+		request := utils.CheckpointBuilder{}.
+			WithCheckpointID(c.checkpointID).
+			WithDocumentID(c.documentID).
+			WithPassageType(1).
+			WithTime(time.Now().UTC()).
+			ToCreateDTO()
 
-	tm, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
-	passage1, err := checkpointStorage.CreatePassage(context.TODO(), &dto.CreatePassageRequest{
-		CheckpointID: ids["checkpointID"],
-		DocumentID:   ids["documentID"],
-		Type:         0,
-		Time:         &tm,
+		sCtx.WithNewParameters("ctx", ctx, "request", request)
+
+		passage, err := c.checkpointStorage.CreatePassage(ctx, request)
+
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(passage)
+		sCtx.Assert().NotNil(passage.ID)
+		sCtx.Assert().Equal(request.CheckpointID, passage.CheckpointID.Int())
+		sCtx.Assert().Equal(request.DocumentID, passage.DocumentID.Int())
+		sCtx.Assert().Equal(request.Type, passage.Type.Int())
+		sCtx.Assert().Equal(request.Time, passage.Time)
+
+		err = c.checkpointStorage.DeletePassage(context.TODO(), &dto.DeletePassageRequest{PassageID: passage.ID.Int()})
+		sCtx.Assert().NoError(err)
 	})
-	require.NoError(t, err)
-	require.NotEmpty(t, passage1)
-
-	passage2, err := checkpointStorage.GetPassage(context.TODO(), &dto.GetPassageRequest{
-		PassageID: passage1.ID.Int(),
-	})
-	require.NoError(t, err)
-	require.NotEmpty(t, passage2)
-	require.Equal(t, passage1.ID, passage2.ID)
-	require.Equal(t, passage1.CheckpointID, passage2.CheckpointID)
-	require.Equal(t, passage1.DocumentID, passage2.DocumentID)
-	require.Equal(t, passage1.Type, passage2.Type)
-	require.Equal(t, passage1.Time, passage2.Time)
-
-	err = checkpointStorage.DeletePassage(context.TODO(), &dto.DeletePassageRequest{PassageID: passage1.ID.Int()})
-	require.NoError(t, err)
 }
 
-func Test_checkpointStorageImpl_GetCheckpoint(t *testing.T) {
-	checkpointStorage := NewCheckpointStorage(testDB)
+func (c *CheckpointStorageSuite) Test_CheckpointStorage_GetCheckpoint(t provider.T) {
+	t.Title("[GetCheckpoint] Get checkpoint test")
+	t.Tags("storage", "postgres", "checkpoint")
+	t.Parallel()
+	t.WithNewStep("Get checkpoint test", func(sCtx provider.StepCtx) {
+		ctx := context.TODO()
+		expCheckpoint, err := c.checkpointStorage.CreateCheckpoint(
+			ctx,
+			utils.CheckpointBuilder{}.
+				WithPhoneNumber("5473").
+				ToCreateCheckpointDTO(),
+		)
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(expCheckpoint)
+		request := utils.CheckpointBuilder{}.
+			WithCheckpointID(expCheckpoint.ID.Int()).
+			ToGetCheckpointDTO()
 
-	request := &dto.CreateCheckpointRequest{
-		PhoneNumber: "123432",
-	}
+		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-	checkpoint, err := checkpointStorage.CreateCheckpoint(context.TODO(), request)
-	require.NoError(t, err)
-	require.NotEmpty(t, checkpoint)
+		checkpoint, err := c.checkpointStorage.GetCheckpoint(ctx, request)
 
-	checkpoint2, err := checkpointStorage.GetCheckpoint(context.TODO(), &dto.GetCheckpointRequest{
-		CheckpointID: checkpoint.ID.Int(),
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(checkpoint)
+		sCtx.Assert().Equal(expCheckpoint.ID, checkpoint.ID)
+		sCtx.Assert().Equal(expCheckpoint.PhoneNumber, checkpoint.PhoneNumber)
+
+		err = c.checkpointStorage.DeleteCheckpoint(context.TODO(), &dto.DeleteCheckpointRequest{CheckpointID: checkpoint.ID.Int()})
+		sCtx.Assert().NoError(err)
 	})
-	require.NoError(t, err)
-	require.NotEmpty(t, checkpoint2)
-	require.Equal(t, checkpoint.ID, checkpoint2.ID)
-	require.Equal(t, checkpoint.PhoneNumber, checkpoint2.PhoneNumber)
-
-	err = checkpointStorage.DeleteCheckpoint(context.TODO(), &dto.DeleteCheckpointRequest{CheckpointID: checkpoint.ID.Int()})
-	require.NoError(t, err)
 }
 
-func Test_checkpointStorageImpl_ListPassages(t *testing.T) {
-	checkpointStorage := NewCheckpointStorage(testDB)
+func (c *CheckpointStorageSuite) Test_CheckpointStorage_GetPassage(t provider.T) {
+	t.Title("[GetPassage] Get passage test")
+	t.Tags("storage", "postgres", "checkpoint", "passage")
+	t.Parallel()
+	t.WithNewStep("Get passage test", func(sCtx provider.StepCtx) {
+		ctx := context.TODO()
+		expPassage, err := c.checkpointStorage.CreatePassage(
+			ctx,
+			utils.CheckpointBuilder{}.
+				WithCheckpointID(c.checkpointID).
+				WithDocumentID(c.documentID).
+				WithPassageType(1).
+				WithTime(time.Now().UTC()).
+				ToCreateDTO(),
+		)
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(expPassage)
+		request := utils.CheckpointBuilder{}.
+			WithPassageID(expPassage.ID.Int()).
+			ToGetDTO()
 
-	tm, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
+		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-	var passages []*model.Passage
-	for range 10 {
-		passage, err := checkpointStorage.CreatePassage(context.TODO(), &dto.CreatePassageRequest{
-			CheckpointID: ids["checkpointID"],
-			DocumentID:   ids["documentID"],
-			Type:         0,
-			Time:         &tm,
-		})
-		require.NoError(t, err)
-		require.NotEmpty(t, passage)
+		passage, err := c.checkpointStorage.GetPassage(ctx, request)
 
-		passages = append(passages, passage)
-	}
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(passage)
+		sCtx.Assert().Equal(expPassage.ID, passage.ID)
+		sCtx.Assert().Equal(expPassage.CheckpointID, passage.CheckpointID)
+		sCtx.Assert().Equal(expPassage.DocumentID, passage.DocumentID)
+		sCtx.Assert().Equal(expPassage.Type, passage.Type)
+		sCtx.Assert().Equal(expPassage.Time, passage.Time)
 
-	listPassages, err := checkpointStorage.ListPassages(context.TODO(), &dto.ListPassagesRequest{
-		InfoCardID: ids["infoCardID"],
+		err = c.checkpointStorage.DeletePassage(context.TODO(), &dto.DeletePassageRequest{PassageID: passage.ID.Int()})
+		sCtx.Assert().NoError(err)
 	})
-	require.NoError(t, err)
-	require.NotEmpty(t, listPassages)
-	require.Equal(t, 10, len(listPassages))
-
-	for _, passage := range passages {
-		err = checkpointStorage.DeletePassage(context.TODO(), &dto.DeletePassageRequest{PassageID: passage.ID.Int()})
-		require.NoError(t, err)
-	}
 }
 
-func Test_checkpointStorageImpl_DeletePassage(t *testing.T) {
-	checkpointStorage := NewCheckpointStorage(testDB)
+func (c *CheckpointStorageSuite) Test_CheckpointStorage_ListPassages(t provider.T) {
+	t.Title("[ListPassages] List passages test")
+	t.Tags("storage", "postgres", "checkpoint", "passage")
+	t.Parallel()
+	t.WithNewStep("List passages test", func(sCtx provider.StepCtx) {
+		ctx := context.TODO()
+		var expPassages []*model.Passage
+		for range 3 {
+			expPassage, err := c.checkpointStorage.CreatePassage(
+				ctx,
+				utils.CheckpointBuilder{}.
+					WithCheckpointID(c.checkpointID).
+					WithDocumentID(c.documentID).
+					WithPassageType(1).
+					WithTime(time.Now().UTC()).
+					ToCreateDTO(),
+			)
+			sCtx.Assert().NoError(err)
+			sCtx.Assert().NotNil(expPassage)
 
-	tm, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
-	passage1, err := checkpointStorage.CreatePassage(context.TODO(), &dto.CreatePassageRequest{
-		CheckpointID: ids["checkpointID"],
-		DocumentID:   ids["documentID"],
-		Type:         0,
-		Time:         &tm,
+			expPassages = append(expPassages, expPassage)
+		}
+		request := utils.CheckpointBuilder{}.
+			WithDocumentID(c.documentID).
+			ToListDTO()
+
+		sCtx.WithNewParameters("ctx", ctx, "request", request)
+
+		passages, err := c.checkpointStorage.ListPassages(ctx, request)
+
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(passages)
+		sCtx.Assert().GreaterOrEqual(len(passages), len(expPassages))
+
+		for _, passage := range expPassages {
+			err = c.checkpointStorage.DeletePassage(context.TODO(), &dto.DeletePassageRequest{PassageID: passage.ID.Int()})
+			sCtx.Assert().NoError(err)
+		}
 	})
-	require.NoError(t, err)
-	require.NotEmpty(t, passage1)
-
-	err = checkpointStorage.DeletePassage(context.TODO(), &dto.DeletePassageRequest{PassageID: passage1.ID.Int()})
-	require.NoError(t, err)
-
-	passage2, err := checkpointStorage.GetPassage(context.TODO(), &dto.GetPassageRequest{
-		PassageID: passage1.ID.Int(),
-	})
-	require.Error(t, err)
-	require.EqualError(t, err, pgx.ErrNoRows.Error())
-	require.Empty(t, passage2)
-
-	err = checkpointStorage.DeletePassage(context.TODO(), &dto.DeletePassageRequest{PassageID: passage1.ID.Int()})
-	require.NoError(t, err)
 }
 
-func Test_checkpointStorageImpl_DeleteCheckpoint(t *testing.T) {
-	checkpointStorage := NewCheckpointStorage(testDB)
+func (c *CheckpointStorageSuite) Test_CheckpointStorage_DeleteCheckpoint(t provider.T) {
+	t.Title("[DeleteCheckpoint] Delete checkpoint test")
+	t.Tags("storage", "postgres", "checkpoint")
+	t.Parallel()
+	t.WithNewStep("Delete checkpoint test", func(sCtx provider.StepCtx) {
+		ctx := context.TODO()
+		expCheckpoint, err := c.checkpointStorage.CreateCheckpoint(
+			ctx,
+			utils.CheckpointBuilder{}.
+				WithPhoneNumber("123543").
+				ToCreateCheckpointDTO(),
+		)
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(expCheckpoint)
+		request := utils.CheckpointBuilder{}.
+			WithCheckpointID(expCheckpoint.ID.Int()).
+			ToDeleteCheckpointDTO()
 
-	request := &dto.CreateCheckpointRequest{
-		PhoneNumber: "123432",
-	}
+		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-	checkpoint, err := checkpointStorage.CreateCheckpoint(context.TODO(), request)
-	require.NoError(t, err)
-	require.NotEmpty(t, checkpoint)
+		err = c.checkpointStorage.DeleteCheckpoint(ctx, request)
 
-	err = checkpointStorage.DeleteCheckpoint(context.TODO(), &dto.DeleteCheckpointRequest{CheckpointID: checkpoint.ID.Int()})
-	require.NoError(t, err)
+		sCtx.Assert().NoError(err)
 
-	checkpoint2, err := checkpointStorage.GetCheckpoint(context.TODO(), &dto.GetCheckpointRequest{
-		CheckpointID: checkpoint.ID.Int(),
+		checkpoint, err := c.checkpointStorage.GetCheckpoint(
+			ctx,
+			utils.CheckpointBuilder{}.
+				WithCheckpointID(expCheckpoint.ID.Int()).
+				ToGetCheckpointDTO(),
+		)
+
+		sCtx.Assert().Error(err)
+		sCtx.Assert().EqualError(err, pgx.ErrNoRows.Error())
+		sCtx.Assert().Nil(checkpoint)
+
+		err = c.checkpointStorage.DeleteCheckpoint(ctx, request)
+
+		sCtx.Assert().NoError(err)
 	})
-	require.Error(t, err)
-	require.EqualError(t, err, pgx.ErrNoRows.Error())
-	require.Empty(t, checkpoint2)
+}
 
-	err = checkpointStorage.DeleteCheckpoint(context.TODO(), &dto.DeleteCheckpointRequest{CheckpointID: checkpoint.ID.Int()})
-	require.NoError(t, err)
+func (c *CheckpointStorageSuite) Test_CheckpointStorage_DeletePassage(t provider.T) {
+	t.Title("[DeletePassage] Delete passage test")
+	t.Tags("storage", "postgres", "checkpoint", "passage")
+	t.Parallel()
+	t.WithNewStep("Delete passage test", func(sCtx provider.StepCtx) {
+		ctx := context.TODO()
+		expPassage, err := c.checkpointStorage.CreatePassage(
+			ctx,
+			utils.CheckpointBuilder{}.
+				WithCheckpointID(c.checkpointID).
+				WithDocumentID(c.documentID).
+				WithPassageType(1).
+				WithTime(time.Now().UTC()).
+				ToCreateDTO(),
+		)
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(expPassage)
+		request := utils.CheckpointBuilder{}.
+			WithPassageID(expPassage.ID.Int()).
+			ToDeleteDTO()
+
+		sCtx.WithNewParameters("ctx", ctx, "request", request)
+
+		err = c.checkpointStorage.DeletePassage(ctx, request)
+
+		sCtx.Assert().NoError(err)
+
+		passage, err := c.checkpointStorage.GetPassage(
+			ctx,
+			utils.CheckpointBuilder{}.
+				WithPassageID(expPassage.ID.Int()).
+				ToGetDTO(),
+		)
+
+		sCtx.Assert().Error(err)
+		sCtx.Assert().EqualError(err, pgx.ErrNoRows.Error())
+		sCtx.Assert().Nil(passage)
+
+		err = c.checkpointStorage.DeletePassage(ctx, request)
+
+		sCtx.Assert().NoError(err)
+	})
 }
