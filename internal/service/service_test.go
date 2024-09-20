@@ -49,6 +49,7 @@ func TestRunner(t *testing.T) {
 		&DocumentSuite{},
 		&EmployeeSuite{},
 		&FieldSuite{},
+		&InfoCardSuite{},
 	}
 	wg.Add(len(suits))
 
