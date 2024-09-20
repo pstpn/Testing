@@ -10,6 +10,7 @@ go-test-command:
 test:
 	rm -rf allure-results
 	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/Testing" && go test ./... --race --parallel 11
+	cp environment.properties allure-results
 
 allure:
 	cp -R allure-reports/history allure-results
