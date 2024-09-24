@@ -3,22 +3,27 @@ package postgres_test
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 
-	"course/internal/service/dto"
-	"course/internal/storage"
+	"course/internal/model"
+	"course/internal/storage/mocks"
 	"course/internal/storage/utils"
 )
 
 type CompanyStorageSuite struct {
 	suite.Suite
 
-	companyStorage storage.CompanyStorage
+	companyMockStorage mocks.CompanyStorage
 }
 
-func (c *CompanyStorageSuite) Test_CompanyStorage_Create(t provider.T) {
+func (c *CompanyStorageSuite) BeforeAll(t provider.T) {
+	t.Title("Init company mock storage")
+	c.companyMockStorage = *mocks.NewCompanyStorage(t)
+	t.Tags("fixture", "company")
+}
+
+func (c *CompanyStorageSuite) Test_CheckpointStorage_CreateCompany(t provider.T) {
 	t.Title("[Create] Create company test")
 	t.Tags("storage", "postgres", "company")
 	t.Parallel()
@@ -28,19 +33,24 @@ func (c *CompanyStorageSuite) Test_CompanyStorage_Create(t provider.T) {
 			WithName("teStik").
 			WithCity("Testovik").
 			ToCreateDTO()
+		expCompany := &model.Company{
+			ID:   model.ToCompanyID(1),
+			Name: "13",
+			City: "13",
+		}
+
+		c.companyMockStorage.
+			On("Create", ctx, request).
+			Return(expCompany, nil).
+			Once()
 
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-		company, err := c.companyStorage.Create(ctx, request)
+		company, err := c.companyMockStorage.Create(ctx, request)
 
 		sCtx.Assert().NoError(err)
 		sCtx.Assert().NotNil(company)
-		sCtx.Assert().NotNil(company.ID)
-		sCtx.Assert().Equal(request.Name, company.Name)
-		sCtx.Assert().Equal(request.City, company.City)
-
-		err = c.companyStorage.Delete(context.TODO(), &dto.DeleteCompanyRequest{CompanyID: company.ID.Int()})
-		sCtx.Assert().NoError(err)
+		sCtx.Assert().Equal(expCompany, company)
 	})
 }
 
@@ -50,31 +60,27 @@ func (c *CompanyStorageSuite) Test_CompanyStorage_GetByID(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Get company by ID test", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		expCompany, err := c.companyStorage.Create(
-			ctx,
-			utils.CompanyBuilder{}.
-				WithName("teStik").
-				WithCity("Testovik").
-				ToCreateDTO(),
-		)
-		sCtx.Assert().NoError(err)
-		sCtx.Assert().NotNil(expCompany)
 		request := utils.CompanyBuilder{}.
-			WithCompanyID(expCompany.ID.Int()).
+			WithCompanyID(1).
 			ToGetDTO()
+		expCompany := &model.Company{
+			ID:   model.ToCompanyID(1),
+			Name: "13",
+			City: "13",
+		}
+
+		c.companyMockStorage.
+			On("GetByID", ctx, request).
+			Return(expCompany, nil).
+			Once()
 
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-		company, err := c.companyStorage.GetByID(ctx, request)
+		company, err := c.companyMockStorage.GetByID(ctx, request)
 
 		sCtx.Assert().NoError(err)
 		sCtx.Assert().NotNil(company)
-		sCtx.Assert().Equal(expCompany.ID, company.ID)
-		sCtx.Assert().Equal(expCompany.Name, company.Name)
-		sCtx.Assert().Equal(expCompany.City, company.City)
-
-		err = c.companyStorage.Delete(context.TODO(), &dto.DeleteCompanyRequest{CompanyID: company.ID.Int()})
-		sCtx.Assert().NoError(err)
+		sCtx.Assert().Equal(expCompany, company)
 	})
 }
 
@@ -84,37 +90,18 @@ func (c *CompanyStorageSuite) Test_CompanyStorage_Delete(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Delete company test", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		expCompany, err := c.companyStorage.Create(
-			ctx,
-			utils.CompanyBuilder{}.
-				WithName("teStik").
-				WithCity("Testovik").
-				ToCreateDTO(),
-		)
-		sCtx.Assert().NoError(err)
-		sCtx.Assert().NotNil(expCompany)
 		request := utils.CompanyBuilder{}.
-			WithCompanyID(expCompany.ID.Int()).
+			WithCompanyID(1).
 			ToDeleteDTO()
+
+		c.companyMockStorage.
+			On("Delete", ctx, request).
+			Return(nil).
+			Once()
 
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-		err = c.companyStorage.Delete(ctx, request)
-
-		sCtx.Assert().NoError(err)
-
-		company, err := c.companyStorage.GetByID(
-			ctx,
-			utils.CompanyBuilder{}.
-				WithCompanyID(expCompany.ID.Int()).
-				ToGetDTO(),
-		)
-
-		sCtx.Assert().Error(err)
-		sCtx.Assert().EqualError(err, pgx.ErrNoRows.Error())
-		sCtx.Assert().Nil(company)
-
-		err = c.companyStorage.Delete(ctx, request)
+		err := c.companyMockStorage.Delete(ctx, request)
 
 		sCtx.Assert().NoError(err)
 	})

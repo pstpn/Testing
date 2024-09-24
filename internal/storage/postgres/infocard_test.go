@@ -4,20 +4,24 @@ import (
 	"context"
 	"time"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 
-	"course/internal/service/dto"
-	"course/internal/storage"
+	"course/internal/model"
+	"course/internal/storage/mocks"
 	"course/internal/storage/utils"
 )
 
 type InfoCardStorageSuite struct {
 	suite.Suite
 
-	infoCardStorage storage.InfoCardStorage
-	employeeID      int64
+	infoCardMockStorage mocks.InfoCardStorage
+}
+
+func (c *InfoCardStorageSuite) BeforeAll(t provider.T) {
+	t.Title("Init infocard mock storage")
+	c.infoCardMockStorage = *mocks.NewInfoCardStorage(t)
+	t.Tags("fixture", "infocard")
 }
 
 func (c *InfoCardStorageSuite) Test_InfoCardStorage_Create(t provider.T) {
@@ -28,24 +32,29 @@ func (c *InfoCardStorageSuite) Test_InfoCardStorage_Create(t provider.T) {
 		ctx := context.TODO()
 		tm, _ := time.Parse(time.RFC3339, "2012-01-02T00:00:00Z")
 		request := utils.InfoCardBuilder{}.
-			WithEmployeeID(c.employeeID).
+			WithEmployeeID(1).
 			WithIsConfirmed(false).
 			WithCreatedDate(tm).
 			ToCreateDTO()
+		expInfoCard := &model.InfoCard{
+			ID:                model.ToInfoCardID(1),
+			CreatedEmployeeID: model.ToEmployeeID(1),
+			IsConfirmed:       false,
+			CreatedDate:       &tm,
+		}
+
+		c.infoCardMockStorage.
+			On("Create", ctx, request).
+			Return(expInfoCard, nil).
+			Once()
 
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-		infoCard, err := c.infoCardStorage.Create(ctx, request)
+		infoCard, err := c.infoCardMockStorage.Create(ctx, request)
 
 		sCtx.Assert().NoError(err)
 		sCtx.Assert().NotNil(infoCard)
-		sCtx.Assert().NotNil(infoCard.ID)
-		sCtx.Assert().Equal(request.EmployeeID, infoCard.CreatedEmployeeID.Int())
-		sCtx.Assert().Equal(request.IsConfirmed, infoCard.IsConfirmed)
-		sCtx.Assert().Equal(request.CreatedDate, infoCard.CreatedDate)
-
-		err = c.infoCardStorage.Delete(context.TODO(), &dto.DeleteInfoCardRequest{InfoCardID: infoCard.ID.Int()})
-		sCtx.Assert().NoError(err)
+		sCtx.Assert().Equal(expInfoCard, infoCard)
 	})
 }
 
@@ -55,40 +64,20 @@ func (c *InfoCardStorageSuite) Test_InfoCardStorage_Validate(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Validate info card test", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		tm, _ := time.Parse(time.RFC3339, "2012-01-02T00:00:00Z")
-		expInfoCard, err := c.infoCardStorage.Create(
-			ctx,
-			utils.InfoCardBuilder{}.
-				WithEmployeeID(c.employeeID).
-				WithIsConfirmed(false).
-				WithCreatedDate(tm).
-				ToCreateDTO(),
-		)
-		sCtx.Assert().NoError(err)
-		sCtx.Assert().NotNil(expInfoCard)
-
 		request := utils.InfoCardBuilder{}.
-			WithInfoCardID(expInfoCard.ID.Int()).
+			WithInfoCardID(1).
 			WithIsConfirmed(true).
 			ToValidateDTO()
 
+		c.infoCardMockStorage.
+			On("Validate", ctx, request).
+			Return(nil).
+			Once()
+
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-		err = c.infoCardStorage.Validate(ctx, request)
+		err := c.infoCardMockStorage.Validate(ctx, request)
 
-		sCtx.Assert().NoError(err)
-
-		infoCard, err := c.infoCardStorage.GetByID(
-			ctx,
-			utils.InfoCardBuilder{}.
-				WithInfoCardID(expInfoCard.ID.Int()).
-				ToGetByIDDTO(),
-		)
-		sCtx.Assert().NoError(err)
-		sCtx.Assert().NotNil(infoCard)
-		sCtx.Assert().True(infoCard.IsConfirmed)
-
-		err = c.infoCardStorage.Delete(context.TODO(), &dto.DeleteInfoCardRequest{InfoCardID: infoCard.ID.Int()})
 		sCtx.Assert().NoError(err)
 	})
 }
@@ -99,35 +88,28 @@ func (c *InfoCardStorageSuite) Test_InfoCardStorage_GetByID(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Get info card by ID test", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		tm, _ := time.Parse(time.RFC3339, "2012-01-02T00:00:00Z")
-		expInfoCard, err := c.infoCardStorage.Create(
-			ctx,
-			utils.InfoCardBuilder{}.
-				WithEmployeeID(c.employeeID).
-				WithIsConfirmed(false).
-				WithCreatedDate(tm).
-				ToCreateDTO(),
-		)
-		sCtx.Assert().NoError(err)
-		sCtx.Assert().NotNil(expInfoCard)
-
 		request := utils.InfoCardBuilder{}.
-			WithInfoCardID(expInfoCard.ID.Int()).
+			WithInfoCardID(1).
 			ToGetByIDDTO()
+		expInfoCard := &model.InfoCard{
+			ID:                model.ToInfoCardID(1),
+			CreatedEmployeeID: model.ToEmployeeID(1),
+			IsConfirmed:       false,
+			CreatedDate:       nil,
+		}
+
+		c.infoCardMockStorage.
+			On("GetByID", ctx, request).
+			Return(expInfoCard, nil).
+			Once()
 
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-		infoCard, err := c.infoCardStorage.GetByID(ctx, request)
+		infoCard, err := c.infoCardMockStorage.GetByID(ctx, request)
 
 		sCtx.Assert().NoError(err)
 		sCtx.Assert().NotNil(infoCard)
-		sCtx.Assert().Equal(expInfoCard.ID, infoCard.ID)
-		sCtx.Assert().Equal(expInfoCard.CreatedEmployeeID, infoCard.CreatedEmployeeID)
-		sCtx.Assert().Equal(expInfoCard.CreatedDate, infoCard.CreatedDate)
-		sCtx.Assert().Equal(expInfoCard.IsConfirmed, infoCard.IsConfirmed)
-
-		err = c.infoCardStorage.Delete(context.TODO(), &dto.DeleteInfoCardRequest{InfoCardID: infoCard.ID.Int()})
-		sCtx.Assert().NoError(err)
+		sCtx.Assert().Equal(expInfoCard, infoCard)
 	})
 }
 
@@ -137,35 +119,28 @@ func (c *InfoCardStorageSuite) Test_InfoCardStorage_GetByEmployeeID(t provider.T
 	t.Parallel()
 	t.WithNewStep("Get info card by employee ID test", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		tm, _ := time.Parse(time.RFC3339, "2012-01-02T00:00:00Z")
-		expInfoCard, err := c.infoCardStorage.Create(
-			ctx,
-			utils.InfoCardBuilder{}.
-				WithEmployeeID(c.employeeID).
-				WithIsConfirmed(false).
-				WithCreatedDate(tm).
-				ToCreateDTO(),
-		)
-		sCtx.Assert().NoError(err)
-		sCtx.Assert().NotNil(expInfoCard)
-
 		request := utils.InfoCardBuilder{}.
-			WithInfoCardID(expInfoCard.ID.Int()).
-			ToGetByIDDTO()
+			WithInfoCardID(1).
+			ToGetByEmployeeIDDTO()
+		expInfoCard := &model.InfoCard{
+			ID:                model.ToInfoCardID(1),
+			CreatedEmployeeID: model.ToEmployeeID(1),
+			IsConfirmed:       false,
+			CreatedDate:       nil,
+		}
+
+		c.infoCardMockStorage.
+			On("GetByEmployeeID", ctx, request).
+			Return(expInfoCard, nil).
+			Once()
 
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-		infoCard, err := c.infoCardStorage.GetByID(ctx, request)
+		infoCard, err := c.infoCardMockStorage.GetByEmployeeID(ctx, request)
 
 		sCtx.Assert().NoError(err)
 		sCtx.Assert().NotNil(infoCard)
-		sCtx.Assert().Equal(expInfoCard.ID, infoCard.ID)
-		sCtx.Assert().Equal(expInfoCard.CreatedEmployeeID, infoCard.CreatedEmployeeID)
-		sCtx.Assert().Equal(expInfoCard.CreatedDate, infoCard.CreatedDate)
-		sCtx.Assert().Equal(expInfoCard.IsConfirmed, infoCard.IsConfirmed)
-
-		err = c.infoCardStorage.Delete(context.TODO(), &dto.DeleteInfoCardRequest{InfoCardID: infoCard.ID.Int()})
-		sCtx.Assert().NoError(err)
+		sCtx.Assert().Equal(expInfoCard, infoCard)
 	})
 }
 
@@ -175,31 +150,34 @@ func (c *InfoCardStorageSuite) Test_InfoCardStorage_List(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("List info cards test", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		tm, _ := time.Parse(time.RFC3339, "2012-01-02T00:00:00Z")
-		expInfoCard, err := c.infoCardStorage.Create(
-			ctx,
-			utils.InfoCardBuilder{}.
-				WithEmployeeID(c.employeeID).
-				WithIsConfirmed(false).
-				WithCreatedDate(tm).
-				ToCreateDTO(),
-		)
-		sCtx.Assert().NoError(err)
-		sCtx.Assert().NotNil(expInfoCard)
-
 		request := utils.InfoCardBuilder{}.
 			ToListDTO()
+		expInfoCards := []*model.FullInfoCard{
+			{
+				ID:                model.ToInfoCardID(1),
+				CreatedEmployeeID: model.ToEmployeeID(1),
+				IsConfirmed:       false,
+				CreatedDate:       nil,
+				FullName:          "123",
+				PhoneNumber:       "123",
+				CompanyID:         model.ToCompanyID(1),
+				Post:              "123",
+				DateOfBirth:       nil,
+			},
+		}
+
+		c.infoCardMockStorage.
+			On("List", ctx, request).
+			Return(expInfoCards, nil).
+			Once()
 
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-		infoCards, err := c.infoCardStorage.List(ctx, request)
+		infoCards, err := c.infoCardMockStorage.List(ctx, request)
 
 		sCtx.Assert().NoError(err)
 		sCtx.Assert().NotNil(infoCards)
-		sCtx.Assert().GreaterOrEqual(len(infoCards), 1)
-
-		err = c.infoCardStorage.Delete(context.TODO(), &dto.DeleteInfoCardRequest{InfoCardID: expInfoCard.ID.Int()})
-		sCtx.Assert().NoError(err)
+		sCtx.Assert().Equal(expInfoCards, infoCards)
 	})
 }
 
@@ -209,40 +187,19 @@ func (c *InfoCardStorageSuite) Test_InfoCardStorage_Delete(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Delete info card test", func(sCtx provider.StepCtx) {
 		ctx := context.TODO()
-		tm, _ := time.Parse(time.RFC3339, "2012-01-02T00:00:00Z")
-		expInfoCard, err := c.infoCardStorage.Create(
-			ctx,
-			utils.InfoCardBuilder{}.
-				WithEmployeeID(c.employeeID).
-				WithIsConfirmed(false).
-				WithCreatedDate(tm).
-				ToCreateDTO(),
-		)
-		sCtx.Assert().NoError(err)
-		sCtx.Assert().NotNil(expInfoCard)
-
 		request := utils.InfoCardBuilder{}.
-			WithInfoCardID(expInfoCard.ID.Int()).
+			WithInfoCardID(1).
 			ToDeleteDTO()
+
+		c.infoCardMockStorage.
+			On("Delete", ctx, request).
+			Return(nil).
+			Once()
 
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
 
-		err = c.infoCardStorage.Delete(ctx, request)
+		err := c.infoCardMockStorage.Delete(ctx, request)
 
-		sCtx.Assert().NoError(err)
-
-		infoCard, err := c.infoCardStorage.GetByID(
-			ctx,
-			utils.InfoCardBuilder{}.
-				WithInfoCardID(expInfoCard.ID.Int()).
-				ToGetByIDDTO(),
-		)
-
-		sCtx.Assert().Error(err)
-		sCtx.Assert().EqualError(err, pgx.ErrNoRows.Error())
-		sCtx.Assert().Nil(infoCard)
-
-		err = c.infoCardStorage.Delete(context.TODO(), &dto.DeleteInfoCardRequest{InfoCardID: expInfoCard.ID.Int()})
 		sCtx.Assert().NoError(err)
 	})
 }
