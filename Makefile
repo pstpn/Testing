@@ -1,15 +1,6 @@
-go-tests-template:
-	gotests -all -w <path>
-
-mockery-template:
-	mockery --all --inpackage
-
-go-test-command:
-	go test -v ./...
-
 test:
 	rm -rf allure-results
-	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/Testing" && go test ./... --race --parallel 11
+	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/testingpsa" && go test ./... --race --parallel 11
 	cp environment.properties allure-results
 
 allure:
@@ -20,4 +11,4 @@ allure:
 
 report: test allure
 
-.PHONY: go-tests-template mockery-template go-test-command test allure report
+.PHONY: test allure report
