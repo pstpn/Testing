@@ -15,7 +15,7 @@ jobs:
           go-version: '1.23.1'
 
       - name: Run unit tests
-        run: export ALLURE_OUTPUT_PATH=${GITHUB_ACTION_PATH} && go test ./... --race && echo "${GITHUB_ACTION_PATH}" && ls "${GITHUB_ACTION_PATH}"
+        run: export ALLURE_OUTPUT_PATH=${pwd} && go test ./... --race && echo "${pwd}" && ls "${pwd}"
 
     # - name: Load test report history
     #   uses: actions/checkout@v3
