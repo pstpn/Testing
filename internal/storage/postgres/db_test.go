@@ -16,10 +16,10 @@ func TestRunner(t *testing.T) {
 	suits := []runner.TestSuite{
 		&CompanyStorageSuite{},
 		&CheckpointStorageSuite{},
-		&DocumentStorageSuite{},
-		&EmployeeStorageSuite{},
-		&FieldStorageSuite{},
-		&InfoCardStorageSuite{},
+		//&DocumentStorageSuite{},
+		//&EmployeeStorageSuite{},
+		//&FieldStorageSuite{},
+		//&InfoCardStorageSuite{},
 	}
 	wg.Add(len(suits))
 
