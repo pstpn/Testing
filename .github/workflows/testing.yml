@@ -15,7 +15,7 @@ jobs:
         go-version: '1.23.1'
 
     - name: Run unit tests
-      run: pwd && ls && export ALLURE_OUTPUT_PATH="." && go test ./... --race
+      run: export ALLURE_OUTPUT_PATH="." && go test ./... --race && pwd && ls
 
     # - name: Load test report history
     #   uses: actions/checkout@v3
