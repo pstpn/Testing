@@ -12,7 +12,7 @@ allure:
 report: test allure
 
 ci-unit:
-	export ALLURE_OUTPUT_PATH="$(pwd)" && \
+	export ALLURE_OUTPUT_PATH="${GITHUB_WORKSPACE}" && \
  	export ALLURE_OUTPUT_FOLDER="unit-allure" && \
  	export DB_INIT_PATH="/home/runner/work/Testing/Testing/sql/init/init.sql" && \
  	go test -tags=unit ./... --race
@@ -23,9 +23,7 @@ local-unit:
  	go test -tags=unit ./... --race
 
 ci-integration:
-	pwd
-	ls
-	echo ${GITHUB_WORKSPACE}
+	export ALLURE_OUTPUT_PATH="${GITHUB_WORKSPACE}" && \
 	export ALLURE_OUTPUT_FOLDER="integration-allure" && \
  	export DB_INIT_PATH="/home/runner/work/Testing/Testing/sql/init/init.sql" && \
 	go test -tags=integration ./... --race
@@ -36,8 +34,6 @@ local-integration:
 	go test -tags=integration ./... --race
 
 ci-concat-reports:
-	pwd
-	ls
 	mkdir allure-results
 	cp -R unit-allure/ allure-results/
 	cp -R integration-allure/ allure-results/
