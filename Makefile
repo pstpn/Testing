@@ -26,6 +26,5 @@ run-ci: build-ci
 rm-ci:
 	docker rm testing
 	docker image rm testing:latest
-	rm -rf allure-reports allure-results
 
 .PHONY: test allure report ci-unit ci-integration build-ci run-ci rm-ci
