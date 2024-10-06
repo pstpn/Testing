@@ -22,7 +22,7 @@ type AuthSuite struct {
 	suite.Suite
 }
 
-func (s *AuthSuite) Test_Auth_RegisterEmployee(t provider.T) {
+func (s *AuthSuite) Test_Auth_RegisterEmployee1(t provider.T) {
 	t.Title("[RegisterEmployee] Incorrect company ID")
 	t.Tags("auth", "register")
 	t.Parallel()
@@ -49,6 +49,62 @@ func (s *AuthSuite) Test_Auth_RegisterEmployee(t provider.T) {
 
 		sCtx.Assert().Error(err)
 		sCtx.Assert().Nil(tokens)
+	})
+}
+
+func (s *AuthSuite) Test_Auth_RegisterEmployee2(t provider.T) {
+	t.Title("[RegisterEmployee] Success")
+	t.Tags("auth", "register")
+	t.Parallel()
+	t.WithNewStep("Success", func(sCtx provider.StepCtx) {
+		ctx := context.TODO()
+		request := utils.AuthObjectMother{CompanyID: 1}.DefaultRegisterEmployeeRequest()
+		tm := time.Now()
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
+
+		employeeMockStorage := mocks.NewEmployeeStorage(t)
+		employeeMockStorage.
+			On("Register", ctx, mock.Anything).
+			Return(&model.Employee{
+				ID:             model.ToEmployeeID(123),
+				FullName:       "123",
+				PhoneNumber:    "123",
+				CompanyID:      model.ToCompanyID(1),
+				Post:           model.ToPostTypeFromInt(1),
+				Password:       string(hashedPassword),
+				RefreshToken:   "123",
+				TokenExpiredAt: &tm,
+				DateOfBirth:    &tm,
+			}, nil).
+			Once()
+
+		infoCardMockStorage := mocks.NewInfoCardStorage(t)
+		infoCardMockStorage.
+			On("Create", ctx, mock.Anything).
+			Return(&model.InfoCard{
+				ID:                model.ToInfoCardID(123),
+				CreatedEmployeeID: model.ToEmployeeID(123),
+				IsConfirmed:       false,
+				CreatedDate:       &tm,
+			}, nil).
+			Once()
+
+		sCtx.WithNewParameters("ctx", ctx, "request", request)
+
+		tokens, err := service.NewAuthService(
+			utils.NewMockLogger(),
+			employeeMockStorage,
+			infoCardMockStorage,
+			&jwt.Manager{},
+			time.Hour,
+			time.Hour,
+		).RegisterEmployee(ctx, request)
+
+		sCtx.Assert().NoError(err)
+		sCtx.Assert().NotNil(tokens)
+		sCtx.Assert().NotEmpty(tokens.RefreshToken)
+		sCtx.Assert().NotEmpty(tokens.RefreshToken)
+		sCtx.Assert().False(tokens.IsAdmin)
 	})
 }
 
