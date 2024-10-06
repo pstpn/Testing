@@ -1,5 +1,4 @@
 //go:build integration
-// +build integration
 
 package postgres_test
 
@@ -11,11 +10,12 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 
 	"course/internal/storage/postgres"
+	"course/internal/storage/postgres/utils"
 )
 
 func TestRunner(t *testing.T) {
-	//db, ids := utils.NewTestStorage()
-	//defer utils.DropTestStorage(db)
+	db, ids := utils.NewTestStorage()
+	defer utils.DropTestStorage(db)
 
 	t.Parallel()
 

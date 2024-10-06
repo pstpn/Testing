@@ -1,5 +1,4 @@
 //go:build integration
-// +build integration
 
 package service_test
 
@@ -21,7 +20,7 @@ type CompanySuite struct {
 }
 
 func (s *CompanySuite) Test_Company_GetCompany1(t provider.T) {
-	t.Title("[GetCompany] Incorrect company ID")
+	t.Title("[INT GetCompany] Incorrect company ID")
 	t.Tags("company")
 	t.Parallel()
 	t.WithNewStep("Incorrect company ID", func(sCtx provider.StepCtx) {
@@ -40,7 +39,7 @@ func (s *CompanySuite) Test_Company_GetCompany1(t provider.T) {
 }
 
 func (s *CompanySuite) Test_Company_GetCompany2(t provider.T) {
-	t.Title("[GetCompany] Success")
+	t.Title("[INT GetCompany] Success")
 	t.Tags("company")
 	t.Parallel()
 	t.WithNewStep("Success", func(sCtx provider.StepCtx) {

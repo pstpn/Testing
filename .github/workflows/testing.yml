@@ -1,11 +1,26 @@
-name: Go
+name: Go tests
 
 on: [push]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: tests
+        volumes:
+          - ./sql/:/docker-entrypoint-initdb.d/
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
@@ -16,6 +31,9 @@ jobs:
 
       - name: Run unit tests
         run: export ALLURE_OUTPUT_PATH="$(pwd)" && go test ./... --race
+
+      - name: Run integration tests
+        run: export ALLURE_OUTPUT_PATH="$(pwd)" && go test -tags=integration ./... --race
 
       - name: Load test report history
         uses: actions/checkout@v3

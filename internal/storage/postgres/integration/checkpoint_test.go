@@ -1,5 +1,4 @@
 //go:build integration
-// +build integration
 
 package postgres_test
 
@@ -26,7 +25,7 @@ type CheckpointStorageSuite struct {
 }
 
 func (c *CheckpointStorageSuite) Test_IntegrationCheckpointStorage_CreateCheckpoint(t provider.T) {
-	t.Title("[CreateCheckpoint] Create checkpoint test")
+	t.Title("[INT CreateCheckpoint] Create checkpoint test")
 	t.Tags("storage", "postgres", "checkpoint")
 	t.Parallel()
 	t.WithNewStep("Create checkpoint test", func(sCtx provider.StepCtx) {
@@ -50,7 +49,7 @@ func (c *CheckpointStorageSuite) Test_IntegrationCheckpointStorage_CreateCheckpo
 }
 
 func (c *CheckpointStorageSuite) Test_IntegrationCheckpointStorage_CreatePassage(t provider.T) {
-	t.Title("[CreatePassage] Create passage test")
+	t.Title("[INT CreatePassage] Create passage test")
 	t.Tags("storage", "postgres", "checkpoint", "passage")
 	t.Parallel()
 	t.WithNewStep("Create passage test", func(sCtx provider.StepCtx) {
