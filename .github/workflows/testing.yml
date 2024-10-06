@@ -5,35 +5,11 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: admin
-          POSTGRES_DB: tests
-        volumes:
-          - ./sql/:/docker-entrypoint-initdb.d/
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.23.1'
-
-      - name: Run unit tests
-        run: export ALLURE_OUTPUT_PATH="$(pwd)" && go test ./... --race
-
-      - name: Run integration tests
-        run: export ALLURE_OUTPUT_PATH="$(pwd)" && go test -tags=integration ./... --race
+      - name: Run all tests
+        run: make run-ci
 
       - name: Load test report history
         uses: actions/checkout@v3
@@ -58,3 +34,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
+
+      - name: Clear tests env
+        run: make rm-ci -i
+        if: always()

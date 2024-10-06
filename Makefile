@@ -11,4 +11,21 @@ allure:
 
 report: test allure
 
-.PHONY: test allure report
+ci-unit:
+	export ALLURE_OUTPUT_PATH="/app/" && go test ./... --race
+
+ci-integration:
+	export ALLURE_OUTPUT_PATH="/app/" && go test -tags=integration ./... --race
+
+build-ci:
+	docker build -t testing .
+
+run-ci: build-ci
+	docker run --name testing testing:latest && docker cp testing:/app/allure-results .
+
+rm-ci:
+	docker rm testing
+	docker image rm testing:latest
+	rm -rf allure-reports allure-results
+
+.PHONY: test allure report ci-unit ci-integration build-ci run-ci rm-ci
