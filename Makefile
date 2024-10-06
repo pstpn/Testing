@@ -12,21 +12,31 @@ allure:
 report: test allure
 
 ci-unit:
-	export ALLURE_OUTPUT_PATH="$(pwd)" && export ALLURE_OUTPUT_FOLDER="unit-allure" && go test -tags=unit ./... --race
+	export ALLURE_OUTPUT_PATH="$(pwd)" && \
+ 	export ALLURE_OUTPUT_FOLDER="unit-allure" && \
+ 	export DB_INIT_PATH="/home/runner/work/Testing/Testing/sql/init/init.sql" && \
+ 	go test -tags=unit ./... --race
 
 local-unit:
-	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/Testing" && go test -tags=unit ./... --race
+	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/Testing" && \
+ 	export DB_INIT_PATH="/Users/stepa/Study/Testing/sql/init/init.sql" && \
+ 	go test -tags=unit ./... --race
 
 ci-integration:
-	export ALLURE_OUTPUT_PATH="$(pwd)" && export ALLURE_OUTPUT_FOLDER="integration-allure" && go test -tags=integration ./... --race
+	export ALLURE_OUTPUT_PATH="$(pwd)" && \
+	export ALLURE_OUTPUT_FOLDER="integration-allure" && \
+ 	export DB_INIT_PATH="/home/runner/work/Testing/Testing/sql/init/init.sql" && \
+	go test -tags=integration ./... --race
+
+local-integration:
+	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/Testing" && \
+ 	export DB_INIT_PATH="/Users/stepa/Study/Testing/sql/init/init.sql" && \
+	go test -tags=integration ./... --race
 
 ci-concat-reports:
 	mkdir allure-results
 	cp -R unit-allure/ allure-results/
 	cp -R integration-allure/ allure-results/
 	cp environment.properties allure-results
-
-local-integration:
-	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/Testing" && go test -tags=integration ./... --race
 
 .PHONY: test allure report ci-unit local-unit ci-integration local-integration ci-concat-reports

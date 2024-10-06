@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"golang.org/x/crypto/bcrypt"
+	"os"
 	"strings"
 	"time"
 
@@ -17,11 +18,10 @@ import (
 )
 
 const (
-	pgImage     = "docker.io/postgres:16-alpine"
-	initSQLPath = "/Users/stepa/Study/Testing/sql/init/init.sql"
-	dbName      = "tests"
-	dbUsername  = "postgres"
-	dbPassword  = "admin"
+	pgImage    = "docker.io/postgres:16-alpine"
+	dbName     = "tests"
+	dbUsername = "postgres"
+	dbPassword = "admin"
 )
 
 var ids map[string]int64
@@ -30,7 +30,7 @@ func NewTestStorage() (*postgres.Postgres, *container.PostgresContainer, map[str
 	ctr, err := container.Run(
 		context.TODO(),
 		pgImage,
-		container.WithInitScripts(initSQLPath),
+		container.WithInitScripts(os.Getenv("DB_INIT_PATH")),
 		container.WithDatabase(dbName),
 		container.WithUsername(dbUsername),
 		container.WithPassword(dbPassword),
