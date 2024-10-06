@@ -15,7 +15,7 @@ func TestRunner(t *testing.T) {
 	suits := []runner.TestSuite{
 		&AuthSuite{},
 		&CheckpointSuite{},
-		//&CompanySuite{},
+		&CompanySuite{},
 		&DocumentSuite{},
 		&EmployeeSuite{},
 		&FieldSuite{},
