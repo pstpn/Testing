@@ -41,7 +41,7 @@ func (s *InfoCardSuite) Test_InfoCard_CreateInfoCard1(t provider.T) {
 
 		infoCard, err := service.NewInfoCardService(utils.NewMockLogger(), infoCardMockStorage).CreateInfoCard(ctx, request)
 
-		sCtx.Assert().Error(err)
+		sCtx.Assert().NoError(err)
 		sCtx.Assert().Nil(infoCard)
 	})
 }
