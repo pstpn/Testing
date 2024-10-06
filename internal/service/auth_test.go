@@ -62,7 +62,7 @@ func (s *AuthSuite) Test_Auth_LoginEmployee1(t provider.T) {
 
 		employeeMockStorage := mocks.NewEmployeeStorage(t)
 		employeeMockStorage.
-			On("GetByPhone", ctx, request).
+			On("GetByPhone", ctx, &dto.GetEmployeeRequest{PhoneNumber: request.PhoneNumber}).
 			Return(nil, fmt.Errorf("incorrect phone number")).
 			Once()
 
@@ -92,7 +92,7 @@ func (s *AuthSuite) Test_Auth_LoginEmployee2(t provider.T) {
 
 		employeeMockStorage := mocks.NewEmployeeStorage(t)
 		employeeMockStorage.
-			On("GetByPhone", ctx, request).
+			On("GetByPhone", ctx, &dto.GetEmployeeRequest{PhoneNumber: request.PhoneNumber}).
 			Return(
 				&model.Employee{
 					ID:             nil,
@@ -172,7 +172,7 @@ func (s *AuthSuite) Test_Auth_LoginEmployee3(t provider.T) {
 
 		tokens, err := service.NewAuthService(
 			utils.NewMockLogger(),
-			mocks.NewEmployeeStorage(t),
+			employeeMockStorage,
 			infoCardMockStorage,
 			&jwt.Manager{},
 			time.Hour,
