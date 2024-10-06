@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package postgres_test
 
 import (
@@ -6,6 +9,8 @@ import (
 
 	"github.com/ozontech/allure-go/pkg/framework/runner"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
+
+	"course/internal/storage/postgres"
 )
 
 func TestRunner(t *testing.T) {
@@ -16,33 +21,33 @@ func TestRunner(t *testing.T) {
 
 	wg := &sync.WaitGroup{}
 	suits := []runner.TestSuite{
-		//&CompanyStorageSuite{
-		//	companyStorage: postgres.NewCompanyStorage(db),
-		//},
-		//&CheckpointStorageSuite{
-		//	checkpointStorage: postgres.NewCheckpointStorage(db),
-		//	checkpointID:      ids["checkpointID"],
-		//	documentID:        ids["documentID"],
-		//},
-		//&DocumentStorageSuite{
-		//	documentStorage: postgres.NewDocumentStorage(db),
-		//	infoCardID:      ids["infoCardID"],
-		//	documentID:      ids["documentID"],
-		//},
-		//&EmployeeStorageSuite{
-		//	employeeStorage: postgres.NewEmployeeStorage(db),
-		//	employeeID:      ids["employeeID"],
-		//	companyID:       ids["companyID"],
-		//	infoCardID:      ids["infoCardID"],
-		//},
-		//&FieldStorageSuite{
-		//	fieldStorage: postgres.NewFieldStorage(db),
-		//	documentID:   ids["documentID"],
-		//},
-		//&InfoCardStorageSuite{
-		//	infoCardStorage: postgres.NewInfoCardStorage(db),
-		//	employeeID:      ids["employeeID"],
-		//},
+		&CompanyStorageSuite{
+			companyStorage: postgres.NewCompanyStorage(db),
+		},
+		&CheckpointStorageSuite{
+			checkpointStorage: postgres.NewCheckpointStorage(db),
+			checkpointID:      ids["checkpointID"],
+			documentID:        ids["documentID"],
+		},
+		&DocumentStorageSuite{
+			documentStorage: postgres.NewDocumentStorage(db),
+			infoCardID:      ids["infoCardID"],
+			documentID:      ids["documentID"],
+		},
+		&EmployeeStorageSuite{
+			employeeStorage: postgres.NewEmployeeStorage(db),
+			employeeID:      ids["employeeID"],
+			companyID:       ids["companyID"],
+			infoCardID:      ids["infoCardID"],
+		},
+		&FieldStorageSuite{
+			fieldStorage: postgres.NewFieldStorage(db),
+			documentID:   ids["documentID"],
+		},
+		&InfoCardStorageSuite{
+			infoCardStorage: postgres.NewInfoCardStorage(db),
+			employeeID:      ids["employeeID"],
+		},
 	}
 	wg.Add(len(suits))
 
