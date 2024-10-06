@@ -23,9 +23,10 @@ local-unit:
  	go test -tags=unit ./... --race
 
 ci-integration:
+	ALLURE_OUTPUT_PATH=`pwd` && export ALLURE_OUTPUT_PATH
 	pwd
 	ls
-	echo ALLURE_OUTPUT_PATH="$(pwd)"
+	echo $ALLURE_OUTPUT_PATH
 	export ALLURE_OUTPUT_PATH="$(pwd)" && \
 	export ALLURE_OUTPUT_FOLDER="integration-allure" && \
  	export DB_INIT_PATH="/home/runner/work/Testing/Testing/sql/init/init.sql" && \
