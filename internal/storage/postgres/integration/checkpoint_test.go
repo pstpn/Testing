@@ -58,7 +58,7 @@ func (c *CheckpointStorageSuite) Test_IntegrationCheckpointStorage_CreatePassage
 			WithCheckpointID(c.checkpointID).
 			WithDocumentID(c.documentID).
 			WithPassageType(1).
-			WithTime(time.Now().UTC()).
+			WithTime(time.Now().UTC().Round(time.Microsecond)).
 			ToCreateDTO()
 
 		sCtx.WithNewParameters("ctx", ctx, "request", request)
