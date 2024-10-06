@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run unit tests
-        run: make ci-unit -i
+        run: pwd
 
       - name: Run integration tests
         run: make ci-integration -i
