@@ -36,8 +36,8 @@ local-integration:
 ci-concat-reports:
 	ls
 	mkdir allure-results
-	cp -R unit-allure/ allure-results/
-	cp -R integration-allure/ allure-results/
+	cp unit-allure/* allure-results/
+	cp integration-allure/* allure-results/
 	cp environment.properties allure-results
 	ls allure-results
 
