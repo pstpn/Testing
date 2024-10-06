@@ -14,8 +14,8 @@ import (
 )
 
 func TestRunner(t *testing.T) {
-	db, ids := utils.NewTestStorage()
-	defer utils.DropTestStorage(db)
+	db, ctr, ids := utils.NewTestStorage()
+	defer utils.DropTestStorage(db, ctr)
 
 	t.Parallel()
 

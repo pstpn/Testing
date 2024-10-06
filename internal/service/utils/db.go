@@ -6,18 +6,50 @@ import (
 	"strings"
 	"time"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/testcontainers/testcontainers-go"
+	container "github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/testcontainers/testcontainers-go/wait"
+
 	"course/internal/service/dto"
 	"course/internal/storage"
 	postgres2 "course/internal/storage/postgres"
 	"course/pkg/storage/postgres"
 )
 
-const connURL = "postgresql://postgres:admin@localhost:5432/tests"
+const (
+	pgImage     = "docker.io/postgres:16-alpine"
+	initSQLPath = "/Users/stepa/Study/Testing/sql/init/init.sql"
+	dbName      = "tests"
+	dbUsername  = "postgres"
+	dbPassword  = "admin"
+)
 
 var ids map[string]int64
 
-func NewTestStorage() (*postgres.Postgres, map[string]int64) {
-	conn, err := postgres.New(connURL)
+func NewTestStorage() (*postgres.Postgres, *container.PostgresContainer, map[string]int64) {
+	ctr, err := container.Run(
+		context.TODO(),
+		pgImage,
+		container.WithInitScripts(initSQLPath),
+		container.WithDatabase(dbName),
+		container.WithUsername(dbUsername),
+		container.WithPassword(dbPassword),
+		testcontainers.WithWaitStrategy(
+			wait.ForLog("database system is ready to accept connections").
+				WithOccurrence(2).
+				WithStartupTimeout(5*time.Second)),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	connString, err := ctr.ConnectionString(context.TODO(), "sslmode=disable")
+	if err != nil {
+		panic(err)
+	}
+
+	conn, err := postgres.New(connString)
 	if err != nil {
 		panic(err)
 	}
@@ -30,11 +62,14 @@ func NewTestStorage() (*postgres.Postgres, map[string]int64) {
 	ids["checkpointID"] = initTestCheckpointStorage(postgres2.NewCheckpointStorage(conn))
 	ids["passageID"] = initTestPassageStorage(postgres2.NewCheckpointStorage(conn))
 
-	return conn, ids
+	return conn, ctr, ids
 }
 
-func DropTestStorage(testDB *postgres.Postgres) {
-	defer testDB.Close()
+func DropTestStorage(testDB *postgres.Postgres, ctr *container.PostgresContainer) {
+	defer func() {
+		testDB.Close()
+		ctr.Terminate(context.TODO())
+	}()
 
 	err := postgres2.NewCheckpointStorage(testDB).DeleteCheckpoint(context.TODO(), &dto.DeleteCheckpointRequest{CheckpointID: ids["checkpointID"]})
 	if err != nil {

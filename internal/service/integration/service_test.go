@@ -17,8 +17,8 @@ import (
 )
 
 func TestRunner(t *testing.T) {
-	db, ids := utils.NewTestStorage()
-	defer utils.DropTestStorage(db)
+	db, ctr, ids := utils.NewTestStorage()
+	defer utils.DropTestStorage(db, ctr)
 
 	tm, err := jwt.NewManager("test")
 	if err != nil {

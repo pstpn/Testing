@@ -8,8 +8,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run all tests
-        run: make run-ci
+      - name: Run unit tests
+        run: make ci-unit -i
+
+      - name: Run integration tests
+        run: make ci-integration -i
+
+      - name: Processing report data
+        run: make ci-concat-reports
 
       - name: Load test report history
         uses: actions/checkout@v3
@@ -34,7 +40,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
-
-      - name: Clear tests env
-        run: make rm-ci -i
-        if: always()

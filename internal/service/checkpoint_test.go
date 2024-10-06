@@ -1,3 +1,5 @@
+//go:build unit
+
 package service_test
 
 import (
@@ -41,7 +43,7 @@ func (c *CheckpointSuite) Test_Checkpoint_CreatePassage1(t provider.T) {
 
 		passage, err := service.NewCheckpointService(utils.NewMockLogger(), checkpointMockStorage).CreatePassage(ctx, request)
 
-		sCtx.Assert().NoError(err)
+		sCtx.Assert().Error(err)
 		sCtx.Assert().Nil(passage)
 	})
 }

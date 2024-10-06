@@ -1,6 +1,6 @@
 test:
 	rm -rf allure-results
-	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/testingpsa" && go test ./... --race --parallel 11
+	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/Testing" && go test -tags=unit ./... --race --parallel 11
 	cp environment.properties allure-results
 
 allure:
@@ -12,19 +12,21 @@ allure:
 report: test allure
 
 ci-unit:
-	export ALLURE_OUTPUT_PATH="/app/" && go test ./... --race
+	export ALLURE_OUTPUT_PATH="$(pwd)" && export ALLURE_OUTPUT_FOLDER="unit-allure" && go test -tags=unit ./... --race
+
+local-unit:
+	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/Testing" && go test -tags=unit ./... --race
 
 ci-integration:
-	export ALLURE_OUTPUT_PATH="/app/" && go test -tags=integration ./... --race
+	export ALLURE_OUTPUT_PATH="$(pwd)" && export ALLURE_OUTPUT_FOLDER="integration-allure" && go test -tags=integration ./... --race
 
-build-ci:
-	docker build -t testing .
+ci-concat-reports:
+	mkdir allure-results
+	cp -R unit-allure/ allure-results/
+	cp -R integration-allure/ allure-results/
+	cp environment.properties allure-results
 
-run-ci: build-ci
-	docker run --name testing testing:latest && docker cp testing:/app/allure-results .
+local-integration:
+	export ALLURE_OUTPUT_PATH="/Users/stepa/Study/Testing" && go test -tags=integration ./... --race
 
-rm-ci:
-	docker rm testing
-	docker image rm testing:latest
-
-.PHONY: test allure report ci-unit ci-integration build-ci run-ci rm-ci
+.PHONY: test allure report ci-unit local-unit ci-integration local-integration ci-concat-reports
