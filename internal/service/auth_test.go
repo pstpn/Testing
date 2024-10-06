@@ -32,7 +32,7 @@ func (s *AuthSuite) Test_Auth_RegisterEmployee(t provider.T) {
 
 		employeeMockStorage := mocks.NewEmployeeStorage(t)
 		employeeMockStorage.
-			On("Register", ctx, request).
+			On("Register", ctx, mock.Anything).
 			Return(nil, fmt.Errorf("incorrect company ID")).
 			Once()
 
@@ -60,8 +60,8 @@ func (s *AuthSuite) Test_Auth_LoginEmployee1(t provider.T) {
 		ctx := context.TODO()
 		request := utils.AuthObjectMother{CompanyID: 1}.IncorrectPhoneNumberLoginEmployeeRequest()
 
-		infoCardMockStorage := mocks.NewInfoCardStorage(t)
-		infoCardMockStorage.
+		employeeMockStorage := mocks.NewEmployeeStorage(t)
+		employeeMockStorage.
 			On("GetByPhone", ctx, request).
 			Return(nil, fmt.Errorf("incorrect phone number")).
 			Once()
@@ -70,8 +70,8 @@ func (s *AuthSuite) Test_Auth_LoginEmployee1(t provider.T) {
 
 		tokens, err := service.NewAuthService(
 			utils.NewMockLogger(),
-			mocks.NewEmployeeStorage(t),
-			infoCardMockStorage,
+			employeeMockStorage,
+			mocks.NewInfoCardStorage(t),
 			&jwt.Manager{},
 			time.Hour,
 			time.Hour,
@@ -90,8 +90,8 @@ func (s *AuthSuite) Test_Auth_LoginEmployee2(t provider.T) {
 		ctx := context.TODO()
 		request := utils.AuthObjectMother{CompanyID: 1}.IncorrectPasswordLoginEmployeeRequest()
 
-		infoCardMockStorage := mocks.NewInfoCardStorage(t)
-		infoCardMockStorage.
+		employeeMockStorage := mocks.NewEmployeeStorage(t)
+		employeeMockStorage.
 			On("GetByPhone", ctx, request).
 			Return(
 				&model.Employee{
@@ -111,8 +111,8 @@ func (s *AuthSuite) Test_Auth_LoginEmployee2(t provider.T) {
 
 		tokens, err := service.NewAuthService(
 			utils.NewMockLogger(),
-			mocks.NewEmployeeStorage(t),
-			infoCardMockStorage,
+			employeeMockStorage,
+			mocks.NewInfoCardStorage(t),
 			&jwt.Manager{},
 			time.Hour,
 			time.Hour,
@@ -134,8 +134,8 @@ func (s *AuthSuite) Test_Auth_LoginEmployee3(t provider.T) {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 		sCtx.Assert().NoError(err)
 
-		infoCardMockStorage := mocks.NewInfoCardStorage(t)
-		infoCardMockStorage.
+		employeeMockStorage := mocks.NewEmployeeStorage(t)
+		employeeMockStorage.
 			On("GetByPhone", ctx, &dto.GetEmployeeRequest{PhoneNumber: request.PhoneNumber}).
 			Return(
 				&model.Employee{
@@ -151,6 +151,7 @@ func (s *AuthSuite) Test_Auth_LoginEmployee3(t provider.T) {
 				}, nil).
 			Once()
 
+		infoCardMockStorage := mocks.NewInfoCardStorage(t)
 		infoCardMockStorage.
 			On("GetByEmployeeID", ctx, &dto.GetInfoCardByEmployeeIDRequest{EmployeeID: 123}).
 			Return(
@@ -162,7 +163,6 @@ func (s *AuthSuite) Test_Auth_LoginEmployee3(t provider.T) {
 				}, nil).
 			Once()
 
-		employeeMockStorage := mocks.NewEmployeeStorage(t)
 		employeeMockStorage.
 			On("UpdateRefreshToken", ctx, mock.Anything).
 			Return(nil).
