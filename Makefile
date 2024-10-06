@@ -34,9 +34,11 @@ local-integration:
 	go test -tags=integration ./... --race
 
 ci-concat-reports:
+	ls
 	mkdir allure-results
 	cp -R unit-allure/ allure-results/
 	cp -R integration-allure/ allure-results/
 	cp environment.properties allure-results
+	ls allure-results
 
 .PHONY: test allure report ci-unit local-unit ci-integration local-integration ci-concat-reports
