@@ -12,7 +12,7 @@ allure:
 report: test allure
 
 ci-unit:
-	export ALLURE_OUTPUT_PATH="/home/runner/work/Testing/Testing/" && \
+	export ALLURE_OUTPUT_PATH="$(pwd)" && \
  	export ALLURE_OUTPUT_FOLDER="unit-allure" && \
  	export DB_INIT_PATH="/home/runner/work/Testing/Testing/sql/init/init.sql" && \
  	go test -tags=unit ./... --race
@@ -23,7 +23,7 @@ local-unit:
  	go test -tags=unit ./... --race
 
 ci-integration:
-	export ALLURE_OUTPUT_PATH="/home/runner/work/Testing/Testing/" && \
+	export ALLURE_OUTPUT_PATH="$(pwd)" && \
 	export ALLURE_OUTPUT_FOLDER="integration-allure" && \
  	export DB_INIT_PATH="/home/runner/work/Testing/Testing/sql/init/init.sql" && \
 	go test -tags=integration ./... --race
@@ -34,9 +34,9 @@ local-integration:
 	go test -tags=integration ./... --race
 
 ci-concat-reports:
-	mkdir /home/runner/work/Testing/Testing/allure-results
-	cp -R /home/runner/work/Testing/Testing/unit-allure/ /home/runner/work/Testing/Testing/allure-results/
-	cp -R /home/runner/work/Testing/Testing/integration-allure/ /home/runner/work/Testing/Testing/allure-results/
-	cp /home/runner/work/Testing/Testing/environment.properties /home/runner/work/Testing/Testing/allure-results/
+	mkdir allure-results
+	cp -R unit-allure/ allure-results/
+	cp -R integration-allure/ allure-results/
+	cp environment.properties allure-results
 
 .PHONY: test allure report ci-unit local-unit ci-integration local-integration ci-concat-reports
