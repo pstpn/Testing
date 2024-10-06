@@ -67,7 +67,7 @@ func (s *CompanySuite) Test_Company_GetCompany2(t provider.T) {
 		sCtx.Assert().NoError(err)
 		sCtx.Assert().NotNil(company)
 		sCtx.Assert().NotNil(company.ID)
-		sCtx.Assert().Equal(1, company.ID.Int())
+		sCtx.Assert().Equal(int64(1), company.ID.Int())
 		sCtx.Assert().Equal("test", company.Name)
 		sCtx.Assert().Equal("test", company.City)
 	})
