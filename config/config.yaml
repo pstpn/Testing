@@ -1,0 +1,23 @@
+app:
+  name: 'testing'
+  version: 'v0.1'
+
+logger:
+  level: 'info'
+  file: 'out.log'
+
+auth:
+  signingKey: "course"
+  accessTokenTTL: 110h
+  refreshTokenTTL: 120h
+
+http:
+  port: 8081
+
+database:
+  postgres:
+    host: 'localhost'
+    port: 5432
+    user: 'postgres'
+    password: 'admin'
+    database: 'course'

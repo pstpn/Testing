@@ -60,12 +60,12 @@ type Document struct {
 	Type         *DocumentType
 }
 
-type DocumentData struct {
+type DataDocument struct {
 	DocumentType string `json:"documentType"`
 	SerialNumber string `json:"serialNumber"`
 }
 
 type FullDocument struct {
-	Data   *DocumentData    `json:"data"`
+	Data   *DataDocument    `json:"data"`
 	Fields []*KeyValueField `json:"fields"`
 }

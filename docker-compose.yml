@@ -1,0 +1,52 @@
+services:
+  postgres:
+    container_name: postgres
+    image: bitnami/postgresql:16
+    volumes:
+      - ./sql/init:/docker-entrypoint-initdb.d
+      - ./data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRESQL_USERNAME: postgres
+      POSTGRESQL_PASSWORD: admin
+      POSTGRESQL_DATABASE: tests
+      POSTGRESQL_PORT: 5432
+      TZ: "Europe/Moscow"
+    ports:
+      - "5434:5432"
+
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:8081/api/v2/healthcheck"]
+    environment:
+      POSTGRESQL_HOST: postgres
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_USERNAME: postgres
+      POSTGRESQL_PASSWORD: admin
+      POSTGRESQL_DATABASE: tests
+      BACKEND_TYPE: docker
+      BACKEND_PORT: 8081
+      #      DATABASE_URL: "postgresql://admin:postgres@postgres-master:5432/course"
+      TZ: "Europe/Moscow"
+    ports:
+      - "8044:8081"
+
+  check_back:
+    image: alpine
+    container_name: check_back
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend:
+        condition: service_healthy

@@ -19,6 +19,9 @@ jobs:
       - name: Run integration tests
         run: make ci-integration -i
 
+      - name: Run E2E tests
+        run: make ci-e2e -i
+
       - name: Processing report data
         run: make ci-concat-reports
 
