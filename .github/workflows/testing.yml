@@ -23,7 +23,9 @@ jobs:
         run: make ci-e2e -i
 
       - name: Processing report data
-        run: make ci-concat-reports
+        run: make ci-concat-reports -i
+        if: always()
+        continue-on-error: true
 
       - name: Load test report history
         uses: actions/checkout@v3
