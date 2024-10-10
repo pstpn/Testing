@@ -51,7 +51,7 @@ func (c *CheckpointStorageSuite) Test_CheckpointStorage_CreateCheckpoint(t provi
 
 		checkpoint, err := c.checkpointMockStorage.CreateCheckpoint(ctx, request)
 
-		sCtx.Assert().Error(err)
+		sCtx.Assert().NoError(err)
 		sCtx.Assert().NotNil(checkpoint)
 		sCtx.Assert().Equal(expCheckpoint, checkpoint)
 	})
