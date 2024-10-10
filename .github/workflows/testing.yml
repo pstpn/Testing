@@ -14,7 +14,7 @@ jobs:
           go-version: '1.23.1'
 
       - name: Run unit tests
-        run: make ci-unit -i
+        run: make ci-unit
 
       - name: Run integration tests
         run: make ci-integration -i
