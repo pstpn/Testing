@@ -1,6 +1,6 @@
 run:
 	docker build -t go_env:latest . -f env.dockerfile
-	docker compose up -d
+	docker compose up prometheus grafana echo-ping fasthttp-ping -d
 
 rerun-gatling:
 	docker stop gatling-at-once gatling-per-second && docker rm gatling-at-once gatling-per-second
@@ -8,7 +8,7 @@ rerun-gatling:
 
 rm:
 	docker compose down
-	docker image rm echo-ping:latest fasthttp-ping:latest go_env:latest
+	docker image rm go_env:latest
 
 gatling-trend:
 	./gatling/scripts/trend.sh
