@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<h1>serveratonceloadsimulation Trend report</h1>
+
+<div id="totalDiv"></div>
+  <div id="div24"></div>
+  <div id="div23"></div>
+
+<script>
+function clone(obj) {
+    if(obj == null || typeof(obj) != 'object')
+        return obj;
+    var temp = new obj.constructor();
+    for(var key in obj)
+        temp[key] = clone(obj[key]);
+    return temp;
+}
+
+var data = [{
+  type: 'scatter',
+  mode: 'lines',
+  x: ['2024-10-28 20:01:00', '2024-10-28 20:03:47', '2024-10-28 20:33:01', '2024-10-28 20:36:48', '2024-10-28 20:39:46', '2024-10-28 20:42:37', '2024-10-28 20:44:47', '2024-10-28 20:46:52'],
+  y: [],
+  line: {
+    width: 2
+  },
+  error_y: {
+    array: [],
+    thickness: 0.5,
+    width: 0
+  },
+  name: 'Response time'
+  },
+  {
+    type: 'scatter',
+    mode: 'lines',
+    x: ['2024-10-28 20:01:00', '2024-10-28 20:03:47', '2024-10-28 20:33:01', '2024-10-28 20:36:48', '2024-10-28 20:39:46', '2024-10-28 20:42:37', '2024-10-28 20:44:47', '2024-10-28 20:46:52'],
+    y: [],
+    yaxis: 'y2',
+    name: 'Requests/s'
+  }
+];
+
+var layout = {
+  title: "",
+  xaxis: {
+    title: "Date"
+  },
+  yaxis: {
+    title: "Time in ms",
+    rangemode: "nonnegative"
+  },
+  yaxis2: {
+    title: 'Requests per second',
+    overlaying: 'y',
+    side: 'right',
+    rangemode:"tozero"
+  }
+};
+
+var layoutAll = clone(layout);
+layoutAll["title"] = "serveratonceloadsimulation - Response time (avg + stddev)";
+var dataAll = clone(data);
+dataAll[0]["y"] = [22828.47276, 25451.56825, 23007.56839, 20365.08184, 21689.38889, 21524.7927, 23636.72807, 24570.07524];
+dataAll[0]["error_y"]["array"] = [2824, 3270, 2712, 3805, 2773, 4464, 2854, 3371];
+dataAll[1]["y"] = [2367.892580576409, 2109.2991856883677, 2209.4076578069416, 2136.4782292868435, 2410.3664416586307, 2128.3388315419816, 2190.413599719593, 2066.8490198516306];
+
+Plotly.plot('totalDiv', dataAll, layoutAll, {showLink: false});
+
+var layout24 = clone(layout);
+layout24["title"] = "FastHTTP Metrics - Response time (avg + stddev)";
+var data24 = clone(data);
+data24[0]["y"] = [22896.34454, 25405.24498, 22978.40908, 20481.47166, 21519.83962, 21909.26294, 23652.22858, 24695.6648];
+data24[0]["error_y"]["array"] = [2786, 3203, 2681, 3819, 2762, 4258, 2827, 3374];
+data24[1]["y"] = [1184.076538707462, 1054.4913716720814, 1104.7038289034708, 1068.2391146434218, 1204.9662487946, 1064.1694157709908, 1095.0753592709427, 1036.0976418417672];
+Plotly.plot('div24', data24, layout24, {showLink: false});
+
+var layout23 = clone(layout);
+layout23["title"] = "Echo Metrics - Response time (avg + stddev)";
+var data23 = clone(data);
+data23[0]["y"] = [22760.60098, 25497.89152, 23036.7277, 20248.69202, 21858.93816, 21140.32246, 23621.22756, 24444.48568];
+data23[0]["error_y"]["array"] = [2860, 3335, 2742, 3788, 2772, 4630, 2881, 3363];
+data23[1]["y"] = [1183.8160418689465, 1054.807814016286, 1104.7038289034708, 1068.2391146434218, 1205.400192864031, 1064.1694157709908, 1095.3382404486504, 1030.7513780098636];
+Plotly.plot('div23', data23, layout23, {showLink: false});
+
+
+
+</script>
+

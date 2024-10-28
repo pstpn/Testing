@@ -15,22 +15,42 @@ services:
     depends_on:
       - prometheus
 
-  gatling:
+  gatling-at-once:
     image: denvazh/gatling:latest
-    container_name: gatling
+    container_name: gatling-at-once
     volumes:
       - ./gatling/simulations:/opt/gatling/user-files/simulations
       - ./gatling/results:/opt/gatling/results
     depends_on:
-      - collector
-    entrypoint: ["/bin/sh", "-c", "gatling.sh -s ServerLoadSimulation"]
+      - echo-ping
+      - fasthttp-ping
+    entrypoint: ["/bin/sh", "-c", "gatling.sh -s ServerAtOnceLoadSimulation"]
 
-  collector:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: collector
+  gatling-per-second:
+    image: denvazh/gatling:latest
+    container_name: gatling-per-second
+    volumes:
+      - ./gatling/simulations:/opt/gatling/user-files/simulations
+      - ./gatling/results:/opt/gatling/results
+    depends_on:
+      gatling-at-once:
+        condition: service_completed_successfully
+    entrypoint: ["/bin/sh", "-c", "gatling.sh -s ServerPerSecondLoadSimulation"]
+
+  echo-ping:
+    image: go_env:latest
+    container_name: echo-ping
     ports:
       - "8081:8081"
     depends_on:
       - prometheus
+    entrypoint: ["/bin/sh", "-c", "go run prometheus/echo/core.go"]
+
+  fasthttp-ping:
+    image: go_env:latest
+    container_name: fasthttp-ping
+    ports:
+      - "8082:8081"
+    depends_on:
+      - prometheus
+    entrypoint: ["/bin/sh", "-c", "go run prometheus/fasthttp/core.go"]

@@ -3,14 +3,19 @@ run:
 	docker compose up -d
 
 rerun-gatling:
-	docker stop gatling && docker rm gatling
-	docker compose up gatling
+	docker stop gatling-at-once gatling-per-second && docker rm gatling-at-once gatling-per-second
+	docker compose up gatling-at-once gatling-per-second
 
 rm:
 	docker compose down
-	docker image rm testing-collector:latest go_env:latest
+	docker image rm echo-ping:latest fasthttp-ping:latest go_env:latest
+
+gatling-trend:
+	./gatling/scripts/trend.sh
 
 gatling-delta:
-	java -jar ~/Downloads/gatling-report-6.1-capsule-fat.jar gatling/results/serverloadsimulation-20241027104451296/simulation.log gatling/results/serverloadsimulation-20241027104530219/simulation.log gatling/results/serverloadsimulation-20241027105037583/simulation.log -o test
+	./gatling/scripts/delta.sh
 
-.PHONY: s-bench run rerun-gatling rm gatling-delta
+gatling-stats: gatling-trend gatling-delta
+
+.PHONY: s-bench run rerun-gatling rm gatling-trend gatling-delta gatling-stats
