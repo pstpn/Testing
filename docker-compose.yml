@@ -6,12 +6,18 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention=12h'
+      - '--storage.tsdb.wal-compression'
 
   grafana:
     image: grafana/grafana
     container_name: grafana
     ports:
       - "3000:3000"
+    volumes:
+      - ./grafana/data:/var/lib/grafana
     depends_on:
       - prometheus
 
