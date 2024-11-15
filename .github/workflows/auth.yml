@@ -16,8 +16,8 @@ jobs:
       - name: 'Create env file'
         shell: bash
         env:
-          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
-          TEST: ${{ secrets.TEST }}
+          SMTP_SERVER: ${{ TEST.SMTP_SERVER }}
+          TEST: ${{ TEST.TEST }}
         run: |
           touch .env
           echo $SMTP_SERVER
