@@ -14,10 +14,15 @@ jobs:
           go-version: '1.23.1'
 
       - name: 'Create env file'
+        shell: bash
+        env:
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          TEST: ${{ secrets.TEST }}
         run: |
           touch .env
-          echo "SMTP_SERVER=${{ secrets.SMTP_SERVER }}\n" >> .env
-          echo "TEST=${{ secrets.TEST }}" >> .env
+          echo $SMTP_SERVER
+          echo "SMTP_SERVER=$SMTP_SERVER\n" >> .env
+          echo "TEST=$TEST" >> .env
           cat .env
 
       - name: Run E2E tests
