@@ -14,8 +14,7 @@ services:
 
   check-app:
     container_name: check-app
-    build:
-      context: .
+    image: alpine
     depends_on:
       auth-app:
         condition: service_healthy

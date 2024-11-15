@@ -24,3 +24,6 @@ jobs:
 
       - name: Run E2E tests
         run: make e2e-run
+
+      - name: Remove env
+        run: make docker-rm
