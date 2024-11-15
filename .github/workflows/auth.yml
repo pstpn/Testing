@@ -17,8 +17,11 @@ jobs:
         shell: bash
         env:
           ENV: ${{ secrets.ENV }}
+          OK: ${{ secrets.OK }}
         run: |
-          echo $ENV > .env
+          echo $OK
+          echo $OK > .env
+          cat .env
 
       - name: Run E2E tests
         run: make run-e2e
