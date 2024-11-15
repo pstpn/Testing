@@ -15,7 +15,7 @@ var (
 func TestLogin(t *testing.T) {
 	client := &http.Client{}
 	expectLogin = httpexpect.WithConfig(httpexpect.Config{
-		BaseURL:  "http://localhost:8084",
+		BaseURL:  "http://localhost:8111",
 		Client:   client,
 		Reporter: httpexpect.NewRequireReporter(nil),
 	})
