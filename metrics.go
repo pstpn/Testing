@@ -63,7 +63,7 @@ func processFile(path string) {
 		return
 	}
 
-	fmt.Printf("%s: %f\n", path, halsteadMetrics(string(content)))
+	fmt.Println(path, ":", halsteadMetrics(string(content)))
 }
 
 func main() {
