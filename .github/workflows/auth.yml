@@ -16,11 +16,9 @@ jobs:
       - name: 'Create env file'
         run: |
           touch .env
-          echo SENDER_EMAIL_ADDRESS=${{ secrets.SENDER_EMAIL_ADDRESS }} >> .env
-          echo "SENDER_EMAIL_PASSWORD=${{ secrets.SENDER_EMAIL_PASSWORD }}\n" >> .env
-          echo "RECIPIENT_EMAIL_ADDRESS=${{ secrets.RECIPIENT_EMAIL_ADDRESS }}\n" >> .env
           echo "SMTP_SERVER=${{ secrets.SMTP_SERVER }}\n" >> .env
           echo "TEST=${{ secrets.TEST }}" >> .env
+          cat .env
 
       - name: Run E2E tests
         run: make run-e2e
