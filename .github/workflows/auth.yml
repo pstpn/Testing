@@ -23,7 +23,7 @@ jobs:
           echo "TEST=${{ secrets.TEST }}" >> .env
 
       - name: Run E2E tests
-        run: make e2e-run
+        run: make run-e2e
 
       - name: Remove env
         run: make docker-rm
