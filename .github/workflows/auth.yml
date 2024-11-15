@@ -1,0 +1,26 @@
+name: Go E2E BDD tests
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23.1'
+
+      - name: 'Create env file'
+        run: |
+          touch .env
+          echo SENDER_EMAIL_ADDRESS=${{ secrets.SENDER_EMAIL_ADDRESS }} >> .env
+          echo "SENDER_EMAIL_PASSWORD=${{ secrets.SENDER_EMAIL_PASSWORD }}\n" >> .env
+          echo "RECIPIENT_EMAIL_ADDRESS=${{ secrets.RECIPIENT_EMAIL_ADDRESS }}\n" >> .env
+          echo "SMTP_SERVER=${{ secrets.SMTP_SERVER }}\n" >> .env
+          echo "TEST=${{ secrets.TEST }}" >> .env
+
+      - name: Run E2E tests
+        run: make e2e-run

@@ -23,3 +23,4 @@ gatling-report-6.1-capsule-fat.jar
 gatling/results
 .idea
 .DS_Store
+.env

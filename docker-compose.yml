@@ -1,0 +1,21 @@
+services:
+  auth-app:
+    container_name: auth-app
+    build:
+      dockerfile: Dockerfile
+      context: .
+    healthcheck:
+      test: curl --fail http://localhost:8084/status || exit 1
+      interval: 5s
+      retries: 5
+      timeout: 10s
+    ports:
+      - "8084:8084"
+
+  check-app:
+    container_name: check-app
+    build:
+      context: .
+    depends_on:
+      auth-app:
+        condition: service_healthy
