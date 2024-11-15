@@ -17,7 +17,7 @@ jobs:
         shell: bash
         env:
           ENV: ${{ secrets.ENV }}
-          OK: ${{ secrets.OK }}
+          OK: ${{ vars.OK }}
         run: |
           echo $OK
           echo $OK > .env
