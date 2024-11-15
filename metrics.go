@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	_ "io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
