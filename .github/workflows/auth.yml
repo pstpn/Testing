@@ -16,12 +16,9 @@ jobs:
       - name: 'Create env file'
         shell: bash
         env:
-          ENV: ${{ secrets.ENV }}
-          OK: ${{ vars.OK }}
+          ENV: ${{ vars.ENV }}
         run: |
-          echo $OK
-          echo $OK > .env
-          cat .env
+          echo $ENV > .env
 
       - name: Run E2E tests
         run: make run-e2e
