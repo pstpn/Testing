@@ -1,0 +1,240 @@
+basePath: /api/v1
+definitions:
+  admin.createProfileRequest:
+    properties:
+      city:
+        example: Beeland
+        type: string
+      email:
+        example: beebee@bee.bee
+        type: string
+      name:
+        example: Bee
+        type: string
+      surname:
+        example: Beevich
+        type: string
+    type: object
+  admin.updateProfileRequest:
+    properties:
+      city:
+        example: NewBeeland
+        type: string
+      name:
+        example: Bee
+        type: string
+      surname:
+        example: Beevich
+        type: string
+    type: object
+  auth.registerRequest:
+    properties:
+      email:
+        example: beebee@bee.bee
+        type: string
+      password:
+        example: "123"
+        type: string
+    type: object
+  http.StatusBadRequest:
+    properties:
+      error:
+        example: Incorrect request body
+        type: string
+    type: object
+  http.StatusForbidden:
+    properties:
+      error:
+        example: Incorrect user role
+        type: string
+    type: object
+  http.StatusUnauthorized:
+    properties:
+      error:
+        example: Cant login user
+        type: string
+    type: object
+  user.getProfileResponse:
+    properties:
+      city:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      surname:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: Bee app
+  version: "1.0"
+paths:
+  /healthcheck:
+    get:
+      description: Проверка на жизнеспособность
+      responses:
+        "200":
+          description: Сервис жив
+          schema:
+            type: string
+        "404":
+          description: Сервис мертв
+      summary: Проверка здоровья
+      tags:
+      - system
+  /profiles:
+    post:
+      description: Метод для создания профиля пользователя
+      parameters:
+      - description: Создание профиля пользователя
+        in: body
+        name: createProfileRequest
+        required: true
+        schema:
+          $ref: '#/definitions/admin.createProfileRequest'
+      responses:
+        "201":
+          description: Профиль успешно создан
+          schema:
+            type: string
+        "400":
+          description: Некорректное тело запроса
+          schema:
+            $ref: '#/definitions/http.StatusBadRequest'
+        "401":
+          description: Авторизация неуспешна
+          schema:
+            $ref: '#/definitions/http.StatusUnauthorized'
+        "403":
+          description: Отсутствуют права доступа
+          schema:
+            $ref: '#/definitions/http.StatusForbidden'
+      security:
+      - BasicAuth: []
+      summary: Создание профиля пользователя
+      tags:
+      - admin
+  /profiles/{email}:
+    delete:
+      description: Метод для удаления профиля пользователя
+      parameters:
+      - description: Email пользователя
+        in: path
+        name: email
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Профиль успешно удален
+          schema:
+            type: string
+        "400":
+          description: Некорректное тело запроса
+          schema:
+            $ref: '#/definitions/http.StatusBadRequest'
+        "401":
+          description: Авторизация неуспешна
+          schema:
+            $ref: '#/definitions/http.StatusUnauthorized'
+        "403":
+          description: Отсутствуют права доступа
+          schema:
+            $ref: '#/definitions/http.StatusForbidden'
+      security:
+      - BasicAuth: []
+      summary: Удаление профиля пользователя
+      tags:
+      - admin
+    get:
+      description: Метод для просмотра профиля пользователя
+      parameters:
+      - description: Email пользователя
+        in: path
+        name: email
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Профиль успешно получен
+          schema:
+            $ref: '#/definitions/user.getProfileResponse'
+        "400":
+          description: Некорректное тело запроса
+          schema:
+            $ref: '#/definitions/http.StatusBadRequest'
+        "401":
+          description: Авторизация неуспешна
+          schema:
+            $ref: '#/definitions/http.StatusUnauthorized'
+        "403":
+          description: Отсутствуют права доступа
+          schema:
+            $ref: '#/definitions/http.StatusForbidden'
+      security:
+      - BasicAuth: []
+      summary: Просмотр профиля пользователя
+      tags:
+      - user
+    put:
+      description: Метод для изменения профиля пользователя
+      parameters:
+      - description: Email пользователя
+        in: path
+        name: email
+        required: true
+        type: string
+      - description: Изменение профиля пользователя
+        in: body
+        name: updateProfileRequest
+        required: true
+        schema:
+          $ref: '#/definitions/admin.updateProfileRequest'
+      responses:
+        "200":
+          description: Профиль успешно изменен
+          schema:
+            type: string
+        "400":
+          description: Некорректное тело запроса
+          schema:
+            $ref: '#/definitions/http.StatusBadRequest'
+        "401":
+          description: Авторизация неуспешна
+          schema:
+            $ref: '#/definitions/http.StatusUnauthorized'
+        "403":
+          description: Отсутствуют права доступа
+          schema:
+            $ref: '#/definitions/http.StatusForbidden'
+      security:
+      - BasicAuth: []
+      summary: Изменение профиля пользователя
+      tags:
+      - admin
+  /register:
+    post:
+      description: Метод для регистрации пользователя
+      parameters:
+      - description: Регистрация пользователя
+        in: body
+        name: registerRequest
+        required: true
+        schema:
+          $ref: '#/definitions/auth.registerRequest'
+      responses:
+        "201":
+          description: Пользователь успешно зарегистрирован
+          schema:
+            type: string
+        "400":
+          description: Некорректное тело запроса
+          schema:
+            $ref: '#/definitions/http.StatusBadRequest'
+      summary: Регистрация пользователя
+      tags:
+      - auth
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

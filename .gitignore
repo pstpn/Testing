@@ -24,3 +24,4 @@ gatling/results
 .idea
 .DS_Store
 .env
+*.log

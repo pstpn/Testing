@@ -1,0 +1,13 @@
+app:
+  name: 'bee-app'
+  version: 'v0.1'
+
+logger:
+  level: 'info'
+  file: 'out.log'
+
+http:
+  port: 8081
+  admin:
+    login: bee
+    password: admin

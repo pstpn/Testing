@@ -1,0 +1,23 @@
+name: Go static check
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23.1'
+
+      - name: Run checks tests
+        run: make check
+
+      - name: Run app
+        run: make docker-run
+
+      - name: Remove app
+        run: make docker-rm
