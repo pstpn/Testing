@@ -16,10 +16,12 @@ jobs:
       - name: 'Create env file'
         shell: bash
         env:
-          SMTP_SERVER: ${{ TEST.SMTP_SERVER }}
-          TEST: ${{ TEST.TEST }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          TEST: ${{ secrets.TEST }}
         run: |
           touch .env
+          echo ${{ secrets }}
+          echo ${{ secrets.TEST }}
           echo $SMTP_SERVER
           echo "SMTP_SERVER=$SMTP_SERVER\n" >> .env
           echo "TEST=$TEST" >> .env
